@@ -22,27 +22,26 @@ public class Main {
 		final Map<Integer, List<Particle>> bruteNeighbours = BruteForceMethod.findNeighbours(area);
 		final long bruteEnd = System.nanoTime();
 
-		for (Particle particle: particles) {
-			System.out.print(particle.getId() + ": ");
-			bruteNeighbours.get(particle.getId()).stream()
-					.map(neighbour -> neighbour.getId() + " ").forEach(System.out::print);
-			System.out.println();
-		}
-		System.out.println();
+		printNeighbours(particles, bruteNeighbours);
 
 		long cellStart = System.nanoTime();
 		final Map<Integer, List<Particle>> cellNeighbours = CellIndexMethod.findNeighbours(area, M);
 		final long cellEnd = System.nanoTime();
 
-		for (Particle particle: particles) {
-			System.out.print(particle.getId() + ": ");
-			cellNeighbours.get(particle.getId()).stream().map(neighbour -> neighbour.getId() + " ").forEach(System.out::print);
-			System.out.println();
-		}
-		System.out.println();
+		printNeighbours(particles, cellNeighbours);
 		
 		System.out.println("Brute: " + (bruteEnd - bruteStart));
 		System.out.println("Cell: " + (cellEnd - cellStart));
+	}
+	
+	private static void printNeighbours(Particle[] particles, Map<Integer, List<Particle>> neighbours) {
+		for (Particle particle: particles) {
+			System.out.print(particle.getId() + ": ");
+			neighbours.get(particle.getId()).stream()
+					.map(neighbour -> neighbour.getId() + " ").forEach(System.out::print);
+			System.out.println();
+		}
+		System.out.println();
 	}
 	
 	private static double rand(double min, double max) {
