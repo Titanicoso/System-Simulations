@@ -16,10 +16,7 @@ public class BruteForceMethod {
 			for (final Particle particle2 : area.getParticles()) {
 				if (particle1.getId() != particle2.getId()) {
 					if (particle1.distance(particle2, area) < area.getInteractionRatio()) {
-						if (!neighbours.get(particle1.getId()).contains(particle2))
-							neighbours.get(particle1.getId()).add(particle2);
-						if (!neighbours.get(particle2.getId()).contains(particle1))
-							neighbours.get(particle2.getId()).add(particle1);
+						neighbours.get(particle1.getId()).add(particle2);
 					}
 				}
 			}
