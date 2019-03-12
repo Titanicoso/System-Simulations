@@ -28,7 +28,7 @@ public class CellIndexMethod {
         final Map<Integer, List<Particle>> grid = createGrid(area, m);
 
         final Map<Integer, List<Particle>> neighbours = new HashMap<>();
-        for(int i = 0; i < m * m; i++) {
+        for(int i = 0; i < area.getParticles().length; i++) {
             neighbours.put(i, new ArrayList<>());
         }
 
@@ -78,7 +78,7 @@ public class CellIndexMethod {
             neighbourX = m - 1;
         else if (neighbourX >= m)
             neighbourX = 0;
-        
+
         if (neighbourY < 0)
             neighbourY = m - 1;
         else if (neighbourY >= m)
@@ -93,8 +93,10 @@ public class CellIndexMethod {
             for (final Particle particle2 : cell2) {
                 if (particle1.getId() != particle2.getId()) {
                     if (particle1.distance(particle2, area, cont) < area.getInteractionRatio()) {
-                        neighbours.get(particle1.getId()).add(particle2);
-                        neighbours.get(particle2.getId()).add(particle1);
+                        if(!neighbours.get(particle1.getId()).contains(particle2))
+                            neighbours.get(particle1.getId()).add(particle2);
+                        if(!neighbours.get(particle2.getId()).contains(particle1))
+                            neighbours.get(particle2.getId()).add(particle1);
                     }
                 }
             }
