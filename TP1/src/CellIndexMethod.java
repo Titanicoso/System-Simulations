@@ -74,17 +74,7 @@ public class CellIndexMethod {
                 neighbourY < 0 || neighbourY >= m) && !cont)
             return -1;
 
-        if (neighbourX < 0)
-            neighbourX = m - 1;
-        else if (neighbourX >= m)
-            neighbourX = 0;
-
-        if (neighbourY < 0)
-            neighbourY = m - 1;
-        else if (neighbourY >= m)
-            neighbourY = 0;
-
-        return neighbourX + neighbourY * m;
+        return Math.floorMod(neighbourX, m) + Math.floorMod(neighbourY, m) * m;
     }
 
     private static void findCellNeighbours(final Map<Integer, List<Particle>> neighbours, final List<Particle> cell1,
