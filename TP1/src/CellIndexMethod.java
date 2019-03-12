@@ -24,7 +24,7 @@ public class CellIndexMethod {
         return grid;
     }
 
-    public static Map<Integer, List<Particle>> findNeighbours(final Area area, final boolean cont, final int m) {
+    public static Map<Integer, List<Particle>> findNeighbours(final Area area, final int m) {
         final Map<Integer, List<Particle>> grid = createGrid(area, m);
 
         final Map<Integer, List<Particle>> neighbours = new HashMap<>();
@@ -37,26 +37,26 @@ public class CellIndexMethod {
 
             if(particles.size() != 0) {
 
-                findCellNeighbours(neighbours, particles, particles, area, cont);
+                findCellNeighbours(neighbours, particles, particles, area);
 
-                int neighbour = getNeighbour(i, 0, 1, m, cont);
+                int neighbour = getNeighbour(i, 0, 1, m, area.isPeriodic());
                 if (neighbour != -1) {
-                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area);
                 }
 
-                neighbour = getNeighbour(i, 1, 0, m, cont);
+                neighbour = getNeighbour(i, 1, 0, m, area.isPeriodic());
                 if (neighbour != -1) {
-                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area);
                 }
 
-                neighbour = getNeighbour(i, 1, 1, m, cont);
+                neighbour = getNeighbour(i, 1, 1, m, area.isPeriodic());
                 if (neighbour != -1) {
-                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area);
                 }
 
-                neighbour = getNeighbour(i, -1, 1, m, cont);
+                neighbour = getNeighbour(i, -1, 1, m, area.isPeriodic());
                 if (neighbour != -1) {
-                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area);
                 }
             }
         }
@@ -64,25 +64,25 @@ public class CellIndexMethod {
     }
 
     private static int getNeighbour(final int cell, final int up, final int right,
-                                    final int m, final boolean cont) {
+                                    final int m, final boolean periodic) {
 
 
         int neighbourX = (cell % m) + right;
         int neighbourY = (cell / m) - up;
 
         if((neighbourX < 0 || neighbourX >= m ||
-                neighbourY < 0 || neighbourY >= m) && !cont)
+                neighbourY < 0 || neighbourY >= m) && !periodic)
             return -1;
 
         return Math.floorMod(neighbourX, m) + Math.floorMod(neighbourY, m) * m;
     }
 
     private static void findCellNeighbours(final Map<Integer, List<Particle>> neighbours, final List<Particle> cell1,
-                                           final List<Particle> cell2, final Area area, final boolean cont) {
+                                           final List<Particle> cell2, final Area area) {
         for (final Particle particle1 : cell1) {
             for (final Particle particle2 : cell2) {
                 if (particle1.getId() != particle2.getId()) {
-                    if (particle1.distance(particle2, area, cont) < area.getInteractionRatio()) {
+                    if (particle1.distance(particle2, area) < area.getInteractionRatio()) {
                         if(!neighbours.get(particle1.getId()).contains(particle2))
                             neighbours.get(particle1.getId()).add(particle2);
                         if(!neighbours.get(particle2.getId()).contains(particle1))

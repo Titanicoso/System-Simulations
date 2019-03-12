@@ -13,11 +13,8 @@ public class Particle {
 		this.ratio = ratio;
 	}
 
-	public double distance(final Particle particle, final Area area, final boolean cont) {
-		if(cont)
-			return distance(particle, area);
-
-		return distance(particle);
+	public double distance(final Particle particle, final Area area) {
+		return area.isPeriodic() ? periodicDistance(particle, area) : distance(particle);
 	}
 
 	private double distance(final Particle particle) {
@@ -27,7 +24,7 @@ public class Particle {
 		) - (this.getRatio() + particle.getRatio());
 	}
 
-	private double distance(final Particle particle, final Area area) {
+	private double periodicDistance(final Particle particle, final Area area) {
 
 		final double dy = Math.abs(particle.getY() - this.getY());
 		final double dx = Math.abs(particle.getX() - this.getX());
