@@ -9,7 +9,7 @@ public class CellIndexMethod {
         final Map<Integer, List<Particle>> grid = new HashMap<>();
 
         for(int i = 0; i < m * m; i++) {
-            grid.put(i, new ArrayList<Particle>());
+            grid.put(i, new ArrayList<>());
         }
 
         final double cellLength = area.getLength() / m;
@@ -24,86 +24,66 @@ public class CellIndexMethod {
         return grid;
     }
 
-    public static void findNeighbours(final Area area, final boolean cont, final int m) {
+    public static Map<Integer, List<Particle>> findNeighbours(final Area area, final boolean cont, final int m) {
         final Map<Integer, List<Particle>> grid = createGrid(area, m);
 
         final Map<Integer, List<Particle>> neighbours = new HashMap<>();
         for(int i = 0; i < m * m; i++) {
-            neighbours.put(i, new ArrayList<Particle>());
+            neighbours.put(i, new ArrayList<>());
         }
 
         for (int i = 0; i < m * m; i++) {
             final List<Particle> particles = grid.get(i);
 
-            int neighbour = getUpNeighbour(i, m, cont);
-            if(neighbour != -1) {
-                findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+            if(particles.size() != 0) {
+
+                findCellNeighbours(neighbours, particles, particles, area, cont);
+
+                int neighbour = getNeighbour(i, 0, 1, m, cont);
+                if (neighbour != -1) {
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                }
+
+                neighbour = getNeighbour(i, 1, 0, m, cont);
+                if (neighbour != -1) {
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                }
+
+                neighbour = getNeighbour(i, 1, 1, m, cont);
+                if (neighbour != -1) {
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                }
+
+                neighbour = getNeighbour(i, -1, 1, m, cont);
+                if (neighbour != -1) {
+                    findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
+                }
             }
-
-            neighbour = getRightNeighbour(i, m, cont);
-            if(neighbour != -1) {
-                findCellNeighbours(neighbours, particles, grid.get(neighbour), area, cont);
-            }
-
-            cell = i - m;
-            if(cell < 0) {
-                if(cont)
-                    findCellNeighbours(neighbours, particles, grid.get(m * m - cell), area, cont);
-            } else
-                findCellNeighbours(neighbours, particles, grid.get(cell), area, cont);
-
-            cell = i + m + 1;
-            if(cell % m == 0 || cell >= m * m) {
-                if(cont)
-                    findCellNeighbours(neighbours, particles, grid.get(cell - m), area, cont);
-            } else
-                findCellNeighbours(neighbours, particles, grid.get(cell), area, cont);
-
-            cell = i - m;
-            if(cell >= m * m) {
-                if(cont)
-                    findCellNeighbours(neighbours, particles, grid.get(m * m - cell), area, cont);
-            } else
-                findCellNeighbours(neighbours, particles, grid.get(cell), area, cont);
-
         }
-
-
-        +1, -m, -m +1, +m+1
+        return neighbours;
     }
 
-    private static int getUpNeighbour(final int cell, final int m, final boolean cont) {
+    private static int getNeighbour(final int cell, final int up, final int right,
+                                    final int m, final boolean cont) {
 
-        if(cell - m < 0 && !cont)
+
+        int neighbourX = (cell % m) + right;
+        int neighbourY = (cell / m) - up;
+
+        if((neighbourX < 0 || neighbourX >= m ||
+                neighbourY < 0 || neighbourY >= m) && !cont)
             return -1;
 
-        final int neighbourX = (cell - m) % m;
-        final int neighbourY = ((cell - m) / m - 1) % m;
-        return neighbourX + neighbourY * m;
-    }
+        if (neighbourX < 0)
+            neighbourX = m - 1;
+        else if (neighbourX >= m)
+            neighbourX = 0;
+        
+        if (neighbourY < 0)
+            neighbourY = m - 1;
+        else if (neighbourY >= m)
+            neighbourY = 0;
 
-    private static int getUpRightNeighbour(final int cell, final int m, final boolean cont) {
-
-        if((cell - m < 0 || ((cell + 1) % m) == 0) && !cont)
-            return -1;
-
-        final int neighbourX = (cell - m + 1) % m;
-        final int neighbourY = ((cell - m + 1) / m - 1) % m;
-        return neighbourX + neighbourY * m;
-    }
-
-    private static int getRightNeighbour(final int cell, final int m, final boolean cont) {
-        if(((cell + 1) % m) == 0 && !cont)
-            return -1;
-
-        final int neighbourX = (cell + 1) % m;
-        final int neighbourY = ((cell + 1) / m - 1) % m;
-        return neighbourX + neighbourY * m;
-    }
-
-    private static int getDownRightNeighbour(final int cell, final int m, final boolean cont) {
-        final int neighbourX = neighbour % m;
-        final int neighbourY = (neighbour / m - 1) % m;
         return neighbourX + neighbourY * m;
     }
 
