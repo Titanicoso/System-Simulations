@@ -12,6 +12,35 @@ public class Particle {
 		this.y = y;
 		this.ratio = ratio;
 	}
+
+	public double distance(final Particle particle, final Area area, final boolean cont) {
+		if(cont)
+			return distance(particle, area);
+
+		return distance(particle);
+	}
+
+	private double distance(final Particle particle) {
+		return Math.hypot(
+				(particle.getX() - this.getX()),
+				(particle.getY() - this.getY())
+		) - (this.getRatio() + particle.getRatio());
+	}
+
+	private double distance(final Particle particle, final Area area) {
+
+		final double dy = Math.abs(particle.getY() - this.getY());
+		final double dx = Math.abs(particle.getX() - this.getX());
+
+		final double cdx = Math.abs(dx - area.getLength());
+		final double cdy = Math.abs(dy - area.getLength());
+
+
+		return Math.hypot(
+				Math.min(dx, cdx),
+				Math.min(dy, cdy)
+		) - (this.getRatio() + particle.getRatio());
+	}
 	
 	public int getId() {
 		return id;
