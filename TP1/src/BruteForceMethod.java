@@ -16,9 +16,9 @@ public class BruteForceMethod {
 	}
 	
 	private static double distance(final Particle particle1, final Particle particle2) {
-		return Math.sqrt(
-			(particle2.getY() - particle1.getY()) * (particle2.getY() - particle1.getY()) +
-			(particle2.getX() - particle1.getX()) * (particle2.getX() - particle1.getX())
-		);
+		return Math.hypot(
+			(particle2.getX() - particle1.getX()), 
+			(particle2.getY() - particle1.getY())
+		) - (particle1.getRatio() + particle2.getRatio());
 	}
 }
