@@ -1,14 +1,19 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 	
-	private final static int N = 10;
+	private final static int N = 60;
 	private final static double L = 20.0;
 	private final static double RC = 1.0;
 	private final static int M = 5;
-	private final static boolean PERIODIC = true;
+	private final static boolean PERIODIC = false;
 
 	public static void main(String[] args) {
 		final Particle[] particles = new Particle[N];
@@ -29,6 +34,9 @@ public class Main {
 		final long cellEnd = System.nanoTime();
 
 		printNeighbours(particles, cellNeighbours);
+
+		logPoints(particles);
+		logNeighbours(cellNeighbours);
 		
 		System.out.println("Brute: " + (bruteEnd - bruteStart));
 		System.out.println("Cell: " + (cellEnd - cellStart));
@@ -46,6 +54,50 @@ public class Main {
 	
 	private static double rand(double min, double max) {
 		return ThreadLocalRandom.current().nextDouble(min, max);
+	}
+
+	private static void logPoints(final Particle[] particles) {
+		File file = new File("points.txt");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+
+		ps.println(L + " " + RC + particles[0].getRatio());
+
+		Arrays.stream(particles).forEach(particle -> {
+			ps.println(
+					particle.getX() + " " + particle.getY()
+			);
+		});
+	}
+
+	private static void logNeighbours(final Map<Integer, List<Particle>> neighbours) {
+		File file = new File("out.txt");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+
+		neighbours.forEach((particle, adjacent) -> {
+			ps.println(
+					(particle + 1) + " " + list(adjacent)
+			);
+		});
+	}
+
+	private static String list(final List<Particle> neighbours) {
+		StringBuilder list = new StringBuilder();
+		neighbours.forEach(particle -> list.append(particle.getId() + 1).append(" "));
+		if(list.length() > 0)
+			return list.substring(0, list.length() - 1);
+		return list.toString();
 	}
 
 }
