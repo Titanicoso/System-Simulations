@@ -66,7 +66,6 @@ public class CellIndexMethod {
     private static int getNeighbour(final int cell, final int up, final int right,
                                     final int m, final boolean periodic) {
 
-
         int neighbourX = (cell % m) + right;
         int neighbourY = (cell / m) - up;
 
@@ -79,6 +78,7 @@ public class CellIndexMethod {
 
     private static void findCellNeighbours(final Map<Integer, List<Particle>> neighbours, final List<Particle> cell1,
                                            final List<Particle> cell2, final Area area) {
+    	
         for (final Particle particle1 : cell1) {
             for (final Particle particle2 : cell2) {
                 if (particle1.getId() != particle2.getId()) {
@@ -93,5 +93,16 @@ public class CellIndexMethod {
         }
     }
 
-
+    public static int findMaximumM(final Area area) {
+    	double maxRatio = 0.0;
+    	for (final Particle particle : area.getParticles()) {
+    		if (particle.getRatio() > maxRatio)
+    			maxRatio = particle.getRatio();
+    	}
+    	return (int) Math.floor(area.getLength() / (area.getInteractionRatio() + maxRatio * 2));
+    }
+    
+    public static int findOptimalM(final Area area) {
+    	return 0;
+    }
 }

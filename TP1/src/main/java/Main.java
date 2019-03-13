@@ -16,8 +16,10 @@ public class Main {
 		final Area area = new Area(options.getL(), options.getRc(), particles, options.isPeriodic());
 		
 		for (int i = 0; i < options.getN(); i++) {
-			particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), 1.0);
+			particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), 0.25);
 		}
+		
+		// System.out.println("Maximum M: " + CellIndexMethod.findMaximumM(area));
 
 		final long bruteStart = System.nanoTime();
 		final Map<Integer, List<Particle>> bruteNeighbours = BruteForceMethod.findNeighbours(area);
@@ -34,8 +36,8 @@ public class Main {
 		logPoints(particles, options);
 		logNeighbours(cellNeighbours);
 		
-		System.out.println("Brute: " + (bruteEnd - bruteStart));
-		System.out.println("Cell: " + (cellEnd - cellStart));
+		System.out.println("Brute: " + (bruteEnd - bruteStart) + " ns = " + (bruteEnd - bruteStart) * 0.000000001 + " s");
+		System.out.println("Cell: " + (cellEnd - cellStart) + " ns = " + (cellEnd - cellStart) * 0.000000001 + " s");
 	}
 	
 	private static void printNeighbours(Particle[] particles, Map<Integer, List<Particle>> neighbours) {
@@ -46,10 +48,6 @@ public class Main {
 			System.out.println();
 		}
 		System.out.println();
-	}
-	
-	private static double rand(double min, double max) {
-		return ThreadLocalRandom.current().nextDouble(min, max);
 	}
 
 	private static void logPoints(final Particle[] particles, final Options options) {
@@ -98,6 +96,10 @@ public class Main {
 		if(list.length() > 0)
 			return list.substring(0, list.length() - 1);
 		return list.toString();
+	}
+	
+	private static double rand(double min, double max) {
+		return ThreadLocalRandom.current().nextDouble(min, max);
 	}
 
 }
