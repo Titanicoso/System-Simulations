@@ -2,12 +2,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.kohsuke.args4j.Option;
+
 public class Main {
 	
-	private final static int N = 10;
+	@Option(name="-N", usage="Number of particles.")  
+	private static int N = 10;
+	
+	@Option(name="-L", usage="Area length.")  
 	private final static double L = 20.0;
+	
+	@Option(name="-R", usage="Interaction ratio.")
 	private final static double RC = 1.0;
+	
+	@Option(name="-M", usage="Number of cells per row/column.")
 	private final static int M = 5;
+	
+	@Option(name="-P", usage="Periodic outline.")
 	private final static boolean PERIODIC = true;
 
 	public static void main(String[] args) {
