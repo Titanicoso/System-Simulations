@@ -53,7 +53,7 @@ public class Main {
 	}
 
 	private static void logPoints(final Particle[] particles, final Options options) {
-		File file = new File("points.txt");
+		File file = new File("utils/points.txt");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file);
@@ -62,7 +62,7 @@ public class Main {
 		}
 		PrintStream ps = new PrintStream(fos);
 
-		ps.println(options.getL() + " " + options.getRc() + particles[0].getRatio());
+		ps.println(options.getL() + " " + options.getRc() + " " + particles[0].getRatio());
 
 		Arrays.stream(particles).forEach(particle -> {
 			ps.println(
@@ -74,7 +74,7 @@ public class Main {
 	}
 
 	private static void logNeighbours(final Map<Integer, List<Particle>> neighbours) {
-		File file = new File("out.txt");
+		File file = new File("utils/out.txt");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file);
