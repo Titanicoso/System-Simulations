@@ -1,32 +1,22 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.kohsuke.args4j.Option;
-
 public class Main {
-	
-	@Option(name="-N", usage="Number of particles.")  
-	private static int N = 10;
-	
-	@Option(name="-L", usage="Area length.")  
-	private final static double L = 20.0;
-	
-	@Option(name="-R", usage="Interaction ratio.")
-	private final static double RC = 1.0;
-	
-	@Option(name="-M", usage="Number of cells per row/column.")
-	private final static int M = 5;
-	
-	@Option(name="-P", usage="Periodic outline.")
-	private final static boolean PERIODIC = true;
 
 	public static void main(String[] args) {
-		final Particle[] particles = new Particle[N];
-		final Area area = new Area(L, RC, particles, PERIODIC);
+		Options options = new Options(args);
 		
-		for (int i = 0; i < N; i++) {
-			particles[i] = new Particle(i, rand(0, L), rand(0, L), 1.0);
+		final Particle[] particles = new Particle[options.getN()];
+		final Area area = new Area(options.getL(), options.getRc(), particles, options.isPeriodic());
+		
+		for (int i = 0; i < options.getN(); i++) {
+			particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), 1.0);
 		}
 
 		final long bruteStart = System.nanoTime();
@@ -36,10 +26,13 @@ public class Main {
 		printNeighbours(particles, bruteNeighbours);
 
 		long cellStart = System.nanoTime();
-		final Map<Integer, List<Particle>> cellNeighbours = CellIndexMethod.findNeighbours(area, M);
+		final Map<Integer, List<Particle>> cellNeighbours = CellIndexMethod.findNeighbours(area, options.getM());
 		final long cellEnd = System.nanoTime();
 
 		printNeighbours(particles, cellNeighbours);
+
+		logPoints(particles, options);
+		logNeighbours(cellNeighbours);
 		
 		System.out.println("Brute: " + (bruteEnd - bruteStart));
 		System.out.println("Cell: " + (cellEnd - cellStart));
@@ -57,6 +50,54 @@ public class Main {
 	
 	private static double rand(double min, double max) {
 		return ThreadLocalRandom.current().nextDouble(min, max);
+	}
+
+	private static void logPoints(final Particle[] particles, final Options options) {
+		File file = new File("points.txt");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+
+		ps.println(options.getL() + " " + options.getRc() + particles[0].getRatio());
+
+		Arrays.stream(particles).forEach(particle -> {
+			ps.println(
+					particle.getX() + " " + particle.getY()
+			);
+		});
+		
+		ps.close();
+	}
+
+	private static void logNeighbours(final Map<Integer, List<Particle>> neighbours) {
+		File file = new File("out.txt");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+
+		neighbours.forEach((particle, adjacent) -> {
+			ps.println(
+					(particle + 1) + " " + list(adjacent)
+			);
+		});
+		
+		ps.close();
+	}
+
+	private static String list(final List<Particle> neighbours) {
+		StringBuilder list = new StringBuilder();
+		neighbours.forEach(particle -> list.append(particle.getId() + 1).append(" "));
+		if(list.length() > 0)
+			return list.substring(0, list.length() - 1);
+		return list.toString();
 	}
 
 }
