@@ -7,7 +7,7 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name="-N", usage="Number of particles.")  
-	private int N = 20;
+	private int N = 1000;
 	
 	@Option(name="-L", usage="Area length.")  
 	private double L = 20.0;
@@ -16,7 +16,7 @@ public class Options {
 	private double RC = 1.0;
 	
 	@Option(name="-M", usage="Number of cells per row/column.")
-	private int M = 3;
+	private int M = 10;
 	
 	@Option(name="-P", usage="Periodic outline.")
 	private boolean PERIODIC = false;

@@ -17,6 +17,9 @@ function plotParticles(particle, neighbours, points, data)
    endfor
    
    axis([0 data(1) 0 data(1)])
+   set(gca,'xtick',[0:(data(1)/data(4)):data(1)]);
+   set(gca,'ytick',[0:(data(1)/data(4)):data(1)]);
+   grid on;
    
    hold off;
   

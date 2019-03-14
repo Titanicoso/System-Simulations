@@ -69,7 +69,7 @@ public class Main {
 		}
 		PrintStream ps = new PrintStream(fos);
 
-		ps.println(options.getL() + " " + options.getRc() + " " + particles[0].getRatio());
+		ps.println(options.getL() + " " + options.getRc() + " " + particles[0].getRatio() + " " + options.getM());
 
 		Arrays.stream(particles).forEach(particle -> {
 			ps.println(
