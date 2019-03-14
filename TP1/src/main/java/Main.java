@@ -1,10 +1,15 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
@@ -15,11 +20,15 @@ public class Main {
 		final Particle[] particles = new Particle[options.getN()];
 		final Area area = new Area(options.getL(), options.getRc(), particles, options.isPeriodic());
 		
-		for (int i = 0; i < options.getN(); i++) {
-			particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), 0.25);
+		if (options.getInput() != null) {
+			readInput(particles, options);
+		} else {
+			for (int i = 0; i < options.getN(); i++) {
+				particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), 0.25);
+			}
 		}
 		
-		// System.out.println("Maximum M: " + CellIndexMethod.findMaximumM(area));
+		//System.out.println("Maximum M: " + CellIndexMethod.findMaximumM(area));
 
 		final long bruteStart = System.nanoTime();
 		final Map<Integer, List<Particle>> bruteNeighbours = BruteForceMethod.findNeighbours(area);
@@ -96,6 +105,29 @@ public class Main {
 		if(list.length() > 0)
 			return list.substring(0, list.length() - 1);
 		return list.toString();
+	}
+	
+	private static void readInput(final Particle[] particles, final Options options) {
+		File input = options.getInput();
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(input));
+			String st;
+			int i = 0;
+			while (i < options.getN() && (st = br.readLine()) != null) {
+				Scanner scanner = new Scanner(st);
+				scanner.useLocale(Locale.US);
+				particles[i] = new Particle(i, scanner.nextDouble(), scanner.nextDouble(), 0.25);
+				scanner.close();
+				i++;
+			}
+			br.close();
+		} catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+		} catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+		}
 	}
 	
 	private static double rand(double min, double max) {
