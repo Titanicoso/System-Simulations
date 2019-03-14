@@ -1,2 +1,4 @@
-[a,b,c] = parser();
-plotParticles(1, a, b, c)
+function run(particle)
+  [a,b,c] = parser();
+  plotParticles(particle, a, b, c)
+endfunction

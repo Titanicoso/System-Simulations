@@ -7,7 +7,7 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name="-N", usage="Number of particles.")  
-	private int N = 1000;
+	private int N = 20;
 	
 	@Option(name="-L", usage="Area length.")  
 	private double L = 20.0;
@@ -19,7 +19,7 @@ public class Options {
 	private int M = 10;
 	
 	@Option(name="-P", usage="Periodic outline.")
-	private boolean PERIODIC = false;
+	private boolean PERIODIC = true;
 	
 	@Option(name = "-I", usage = "Input file.")
     private File input;
