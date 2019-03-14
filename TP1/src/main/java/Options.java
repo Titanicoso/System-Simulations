@@ -9,17 +9,20 @@ public class Options {
 	@Option(name="-N", usage="Number of particles.")  
 	private int N = 20;
 	
+	@Option(name="-R", usage="Particles ratio.")  
+	private double R = 0.25;
+	
 	@Option(name="-L", usage="Area length.")  
 	private double L = 20.0;
 	
-	@Option(name="-R", usage="Interaction ratio.")
+	@Option(name="-RC", usage="Interaction ratio.")
 	private double RC = 1.0;
 	
 	@Option(name="-M", usage="Number of cells per row/column.")
-	private int M = 3;
+	private int M = 6;
 	
 	@Option(name="-P", usage="Periodic outline.")
-	private boolean PERIODIC = false;
+	private boolean PERIODIC = true;
 	
 	@Option(name = "-I", usage = "Input file.")
     private File input;
@@ -44,6 +47,10 @@ public class Options {
 
 	public int getN() {
 		return N;
+	}
+
+	public double getR() {
+		return R;
 	}
 
 	public double getL() {

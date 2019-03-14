@@ -99,7 +99,8 @@ public class CellIndexMethod {
     		if (particle.getRatio() > maxRatio)
     			maxRatio = particle.getRatio();
     	}
-    	return (int) Math.floor(area.getLength() / (area.getInteractionRatio() + maxRatio * 2));
+    	int m = (int) Math.floor(area.getLength() / (area.getInteractionRatio() + maxRatio * 2));
+    	return m == 0 ? 1 : m;
     }
     
     public static int findOptimalM(final Area area) {
