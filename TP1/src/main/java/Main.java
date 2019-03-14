@@ -24,7 +24,7 @@ public class Main {
 			readInput(particles, options);
 		} else {
 			for (int i = 0; i < options.getN(); i++) {
-				particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), 0.25);
+				particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), options.getR());
 			}
 		}
 		
@@ -69,11 +69,11 @@ public class Main {
 		}
 		PrintStream ps = new PrintStream(fos);
 
-		ps.println(options.getL() + " " + options.getRc() + " " + particles[0].getRatio() + " " + options.getM());
+		ps.println(options.getL() + " " + options.getRc() + " " + options.getM());
 
 		Arrays.stream(particles).forEach(particle -> {
 			ps.println(
-					particle.getX() + " " + particle.getY()
+					particle.getX() + " " + particle.getY() + " " + particle.getRatio()
 			);
 		});
 		
@@ -116,7 +116,7 @@ public class Main {
 			while (i < options.getN() && (st = br.readLine()) != null) {
 				Scanner scanner = new Scanner(st);
 				scanner.useLocale(Locale.US);
-				particles[i] = new Particle(i, scanner.nextDouble(), scanner.nextDouble(), 0.25);
+				particles[i] = new Particle(i, scanner.nextDouble(), scanner.nextDouble(), scanner.nextDouble());
 				scanner.close();
 				i++;
 			}
