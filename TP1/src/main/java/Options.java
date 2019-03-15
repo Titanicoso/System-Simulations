@@ -7,7 +7,7 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name="-N", usage="Number of particles.")  
-	private int N = 20;
+	private int N = 50;
 	
 	@Option(name="-R", usage="Particles ratio.", forbids={"-MR"})  
 	private double R = 0.25;
