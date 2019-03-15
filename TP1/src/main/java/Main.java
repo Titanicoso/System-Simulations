@@ -23,18 +23,25 @@ public class Main {
 		if (options.getInput() != null) {
 			readInput(particles, options);
 		} else {
-			for (int i = 0; i < options.getN(); i++) {
-				particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), options.getR());
+			if (options.getMR() == null) {
+				for (int i = 0; i < options.getN(); i++) {
+					particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), options.getR());
+				}
+			} else {
+				for (int i = 0; i < options.getN(); i++) {
+					particles[i] = new Particle(i, rand(0, options.getL()), rand(0, options.getL()), rand(0, options.getMR()));
+				}
 			}
 		}
-		
-		//System.out.println("Maximum M: " + CellIndexMethod.findMaximumM(area));
 
 		final long bruteStart = System.nanoTime();
 		final Map<Integer, List<Particle>> bruteNeighbours = BruteForceMethod.findNeighbours(area);
 		final long bruteEnd = System.nanoTime();
 
 		printNeighbours(particles, bruteNeighbours);
+		
+		if (options.getM() == null)
+			options.setM(CellIndexMethod.findMaximumM(area));
 
 		long cellStart = System.nanoTime();
 		final Map<Integer, List<Particle>> cellNeighbours = CellIndexMethod.findNeighbours(area, options.getM());
@@ -47,6 +54,7 @@ public class Main {
 		
 		System.out.println("Brute: " + (bruteEnd - bruteStart) + " ns = " + (bruteEnd - bruteStart) * 0.000000001 + " s");
 		System.out.println("Cell: " + (cellEnd - cellStart) + " ns = " + (cellEnd - cellStart) * 0.000000001 + " s");
+		System.out.println("Maximum M: " + CellIndexMethod.findMaximumM(area));
 	}
 	
 	private static void printNeighbours(Particle[] particles, Map<Integer, List<Particle>> neighbours) {

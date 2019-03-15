@@ -9,8 +9,11 @@ public class Options {
 	@Option(name="-N", usage="Number of particles.")  
 	private int N = 20;
 	
-	@Option(name="-R", usage="Particles ratio.")  
+	@Option(name="-R", usage="Particles ratio.", forbids={"-MR"})  
 	private double R = 0.25;
+	
+	@Option(name="-MR", usage="Max particles ratio.", forbids={"-R"})  
+	private Double MR;
 	
 	@Option(name="-L", usage="Area length.")  
 	private double L = 20.0;
@@ -19,7 +22,7 @@ public class Options {
 	private double RC = 1.0;
 	
 	@Option(name="-M", usage="Number of cells per row/column.")
-	private int M = 6;
+	private Integer M;
 	
 	@Option(name="-P", usage="Periodic outline.")
 	private boolean PERIODIC = true;
@@ -52,6 +55,11 @@ public class Options {
 	public double getR() {
 		return R;
 	}
+	
+	public Double getMR() {
+		return MR;
+	}
+
 
 	public double getL() {
 		return L;
@@ -61,8 +69,12 @@ public class Options {
 		return RC;
 	}
 
-	public int getM() {
+	public Integer getM() {
 		return M;
+	}
+	
+	public void setM(Integer M) {
+		this.M = M;
 	}
 
 	public boolean isPeriodic() {
