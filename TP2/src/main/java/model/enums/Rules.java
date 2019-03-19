@@ -19,7 +19,7 @@ public enum Rules implements Rule {
             }
 
             if(cell.isAlive()) {
-                return !(alive == 2 || alive == 3);
+                return (alive != 2 && alive != 3);
             }
 
             return alive == 3;

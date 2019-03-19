@@ -19,14 +19,32 @@ public class Simulation {
 
             for (Cell cell: lastModified) {
                 List<Cell> neighbours = rule.getNeighbours(state, cell);
+
+                boolean isChecked = state.isChecked(cell);
+
+                if(!isChecked && rule.apply(state, cell)) {
+                    modified.add(cell);
+                }
+
+                if(!isChecked) {
+                    state.setChecked(cell);
+                }
+
                 for (Cell neighbour : neighbours) {
-                    if(rule.apply(state, neighbour)) {
+                    isChecked = state.isChecked(neighbour);
+
+                    if(!isChecked && rule.apply(state, neighbour)) {
                         modified.add(neighbour);
+                    }
+
+                    if(!isChecked) {
+                        state.setChecked(neighbour);
                     }
                 }
             }
             //logState(state);
             state.changeState(modified);
+            modified.clear();
             i++;
         }
     }
