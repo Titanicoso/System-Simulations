@@ -35,7 +35,7 @@ public class Options {
         try {
             parser.parseArgument(args);
             if (input != null && !input.isFile()) {
-                throw new IllegalArgumentException("-i is no valid input file.");
+                throw new IllegalArgumentException("-I is no valid input file.");
             }
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
