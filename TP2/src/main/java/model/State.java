@@ -25,8 +25,9 @@ public class State {
                     for (int k = 0; k < dim; k++) {
                         this.cells[i][j][k] = new Cell(i, j, k, false);
                     }
+                } else {
+                	this.cells[i][j][0] = new Cell(i, j, 0, false);
                 }
-                this.cells[i][j][0] = new Cell(i, j, 0, false);
             }
         }
     }
@@ -134,5 +135,13 @@ public class State {
 
         this.modified = new ArrayList<>(modified);
         this.checked.clear();
+    }
+    
+    public int getDim() {
+    	return dim;
+    }
+    
+    public boolean is3D() {
+    	return is3D;
     }
 }
