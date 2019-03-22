@@ -6,6 +6,12 @@ import org.kohsuke.args4j.Option;
 
 public class Options {
 	
+	@Option(name = "-L", usage = "Dimension length.")
+    private Integer dim = 100;
+	
+	@Option(name = "-3D", usage = "Enable 3D.")
+    private boolean is3D = false;
+	
 	@Option(name = "-I", usage = "Input file.")
     private File input;
 	
@@ -26,5 +32,17 @@ public class Options {
             System.exit(1);
         }
     }
+
+	public Integer getDim() {
+		return dim;
+	}
+
+	public boolean is3D() {
+		return is3D;
+	}
+	
+	public File getInput() {
+		return input;
+	}
 
 }

@@ -2,20 +2,32 @@ import model.Cell;
 import model.State;
 import model.enums.Rules;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
 
 public class Simulation {
+	
+	static boolean append = false;
 
-    public static void simulate(int states, int dim, Rules rule, boolean is3D) {
+    public static void simulate(int states, Rules rule,  Options options) {
 
         List<Cell> modified = new ArrayList<>();
 
-        State state = new State(dim, is3D);
+        State state = new State(options.getDim(), options.is3D());
+        if (options.getInput() != null) {
+        	readInput(state, modified, options);
+        	state.changeState(modified);
+        	modified.clear();
+        }
 
         int i = 0;
         while (i < states) {
@@ -47,6 +59,7 @@ public class Simulation {
                 }
             }
             printState(state);
+            logState(state);
             state.changeState(modified);
             modified.clear();
             i++;
@@ -54,10 +67,11 @@ public class Simulation {
     }
     
     private static void logState(State state) {
-    	File file = new File("utils/out.xyz");
+    	File file = new File("output.xyz");
 		FileOutputStream fos = null;
 		try {
-			fos = new FileOutputStream(file);
+			fos = new FileOutputStream(file, append);
+			append = true;
 		} catch (FileNotFoundException e) {
 			return;
 		}
@@ -84,6 +98,7 @@ public class Simulation {
         }
 		
 		ps.println(alive.size());
+		ps.println();
 		for (Cell cell : alive) {
 			ps.println("C " + cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
@@ -118,4 +133,28 @@ public class Simulation {
 			System.out.println("C " + cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
     }
+    
+	private static void readInput(final State state, final List<Cell> modified, final Options options) {
+		File input = options.getInput();
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(input));
+			String st;
+			while ((st = br.readLine()) != null) {
+				Scanner scanner = new Scanner(st);
+				scanner.useLocale(Locale.US);
+				if (options.is3D())
+					modified.add(state.getCell(scanner.nextInt(), scanner.nextInt(), scanner.nextInt()));
+				else
+					modified.add(state.getCell(scanner.nextInt(), scanner.nextInt(), 0));
+				scanner.close();
+			}
+			br.close();
+		} catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+		} catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+		}
+	}
 }
