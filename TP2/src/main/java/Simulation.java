@@ -79,27 +79,27 @@ public class Simulation {
 		
 		int dim = state.getDim();
 		boolean is3D = state.is3D();
-		List<Cell> alive = new ArrayList<>();
+		//List<Cell> alive = new ArrayList<>();
 		
-		for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                if(is3D) {
-                    for (int k = 0; k < dim; k++) {
-                    	Cell cell = state.getCell(i, j, k);
-                    	if (cell.isAlive())
-                    		alive.add(cell);
-                    }
-                } else {
-                	Cell cell = state.getCell(i, j, 0);
-                	if (cell.isAlive())
-                		alive.add(cell);
-                }
-            }
-        }
-		
-		ps.println(alive.size());
+//		for (int i = 0; i < dim; i++) {
+//            for (int j = 0; j < dim; j++) {
+//                if(is3D) {
+//                    for (int k = 0; k < dim; k++) {
+//                    	Cell cell = state.getCell(i, j, k);
+//                    	if (cell.isAlive())
+//                    		alive.add(cell);
+//                    }
+//                } else {
+//                	Cell cell = state.getCell(i, j, 0);
+//                	if (cell.isAlive())
+//                		alive.add(cell);
+//                }
+//            }
+//        }
+
+		ps.println(state.getAliveCount());
 		ps.println();
-		for (Cell cell : alive) {
+		for (Cell cell : state.getAlive()) {
 			ps.println("C " + cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
 		
@@ -110,26 +110,26 @@ public class Simulation {
 		int dim = state.getDim();
 		boolean is3D = state.is3D();
 		
-		List<Cell> alive = new ArrayList<>();
+		//List<Cell> alive = new ArrayList<>();
 		
-		for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                if(is3D) {
-                    for (int k = 0; k < dim; k++) {
-                    	Cell cell = state.getCell(i, j, k);
-                    	if (cell.isAlive())
-                    		alive.add(cell);
-                    }
-                } else {
-                	Cell cell = state.getCell(i, j, 0);
-                	if (cell.isAlive())
-                		alive.add(cell);
-                }
-            }
-        }
+//		for (int i = 0; i < dim; i++) {
+//            for (int j = 0; j < dim; j++) {
+//                if(is3D) {
+//                    for (int k = 0; k < dim; k++) {
+//                    	Cell cell = state.getCell(i, j, k);
+//                    	if (cell.isAlive())
+//                    		alive.add(cell);
+//                    }
+//                } else {
+//                	Cell cell = state.getCell(i, j, 0);
+//                	if (cell.isAlive())
+//                		alive.add(cell);
+//                }
+//            }
+//        }
 		
-		System.out.println(alive.size());
-		for (Cell cell : alive) {
+		System.out.println(state.getAliveCount());
+		for (Cell cell : state.getAlive()) {
 			System.out.println("C " + cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
     }
@@ -149,9 +149,6 @@ public class Simulation {
 				scanner.close();
 			}
 			br.close();
-		} catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
 		} catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);

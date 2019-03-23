@@ -56,6 +56,10 @@ public class Cell {
         alive = !alive;
     }
 
+    public double getDistanceToOrigin() {
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -8,6 +8,7 @@ public class State {
     private List<Cell> modified;
     private List<Cell> checked;
     private Cell[][][] cells;
+    private List<Cell> alive;
     private int dim;
     private boolean is3D;
 
@@ -15,6 +16,7 @@ public class State {
     public State(int dim, boolean is3D) {
         this.modified = new ArrayList<>();
         this.checked = new ArrayList<>();
+        this.alive = new ArrayList<>();
         this.cells = new Cell[dim][dim][dim];
         this.dim = dim;
         this.is3D = is3D;
@@ -130,13 +132,42 @@ public class State {
             int y = cell.getY();
             int z = cell.getZ();
 
+            if(cell.isAlive()) {
+                alive.remove(cell);
+            } else {
+                alive.add(cell);
+            }
+
             this.cells[x][y][z].changeStatus();
         }
 
         this.modified = new ArrayList<>(modified);
         this.checked.clear();
     }
-    
+
+    public double getRadius() {
+        double maxRadius = 0;
+        double radius;
+
+        for (Cell cell : this.alive) {
+            radius = cell.getDistanceToOrigin();
+
+            if(radius > maxRadius) {
+                maxRadius = radius;
+            }
+        }
+
+        return maxRadius;
+    }
+
+    public int getAliveCount() {
+        return alive.size();
+    }
+
+    public List<Cell> getAlive() {
+        return alive;
+    }
+
     public int getDim() {
     	return dim;
     }
