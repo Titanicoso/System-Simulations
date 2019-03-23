@@ -14,8 +14,18 @@ public enum Rules implements Rule {
 	*
 	* 2. If an empty cell has between c and d neighbors, it becomes alive in the next generation (by reproduction).
 	*
+	* Rules notation: Bcd/Sab (if c == d or a == b only one is used)
+	* 	Ex. Standard = B3/S23
 	*/
     STANDARD(2, 3, 3, 3) {	
+
+        @Override
+        public List<Cell> getNeighbours(State state, Cell cell) {
+            return state.getMooreNeighbours(cell, 1);
+        }
+        
+    },
+    SEEDS(-1, -1, 2, 2) {
 
         @Override
         public List<Cell> getNeighbours(State state, Cell cell) {
