@@ -100,7 +100,7 @@ public class Simulation {
 		ps.println(state.getAliveCount());
 		ps.println();
 		for (Cell cell : state.getAlive()) {
-			ps.println("C " + cell.getX() + " " + cell.getY() + " " + cell.getZ());
+			ps.println(cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
 		
 		ps.close();
@@ -130,7 +130,7 @@ public class Simulation {
 		
 		System.out.println(state.getAliveCount());
 		for (Cell cell : state.getAlive()) {
-			System.out.println("C " + cell.getX() + " " + cell.getY() + " " + cell.getZ());
+			System.out.println(cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
     }
     
