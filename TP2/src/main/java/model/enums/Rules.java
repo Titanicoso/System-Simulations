@@ -4,7 +4,9 @@ import interfaces.Rule;
 import model.Cell;
 import model.State;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public enum Rules implements Rule {
 	/*
@@ -32,29 +34,24 @@ public enum Rules implements Rule {
             return state.getMooreNeighbours(cell, 1);
         }
         
-    },
+    }/*,
     ANTS {
 
+        Random r = new Random();
+
         @Override
-        public boolean apply(State state, Cell cell, Cell previouslyModified) {
-
-            if(cell == previouslyModified)
-                return true;
-
-            if(previouslyModified.isAlive()) {
-                return cell.getX() == previouslyModified.getX() + 1 &&
-                        cell.getY() == previouslyModified.getY() && cell.getZ() == previouslyModified.getZ();
-            }
-
-            return cell.getX() == previouslyModified.getX() - 1 &&
-                    cell.getY() == previouslyModified.getY() && cell.getZ() == previouslyModified.getZ();
+        public boolean apply(State state, Cell cell) {
+            return true;
         }
 
         @Override
         public List<Cell> getNeighbours(State state, Cell cell) {
-            return state.getVonNeumannNeighbours(cell, 1);
+            if(!cell.isAlive())
+                return Collections.emptyList();
+            int neighbour = r.nextInt(4);
+            return state.getVonNeumannNeighbours(cell, 1).subList(neighbour, neighbour + 1);
         }
-    };
+    }*/;
     
     private int a = -1;
 	private int b = -1;
@@ -71,7 +68,7 @@ public enum Rules implements Rule {
 	}
     
     @Override
-    public boolean apply(State state, Cell cell, Cell previouslyModified) {
+    public boolean apply(State state, Cell cell) {
 
         final List<Cell> neighbours = getNeighbours(state, cell);
         int alive = 0;
