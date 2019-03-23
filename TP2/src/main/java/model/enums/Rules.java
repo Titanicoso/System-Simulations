@@ -32,12 +32,36 @@ public enum Rules implements Rule {
             return state.getMooreNeighbours(cell, 1);
         }
         
+    },
+    ANTS {
+
+        @Override
+        public boolean apply(State state, Cell cell, Cell previouslyModified) {
+
+            if(cell == previouslyModified)
+                return true;
+
+            if(previouslyModified.isAlive()) {
+                return cell.getX() == previouslyModified.getX() + 1 &&
+                        cell.getY() == previouslyModified.getY() && cell.getZ() == previouslyModified.getZ();
+            }
+
+            return cell.getX() == previouslyModified.getX() - 1 &&
+                    cell.getY() == previouslyModified.getY() && cell.getZ() == previouslyModified.getZ();
+        }
+
+        @Override
+        public List<Cell> getNeighbours(State state, Cell cell) {
+            return state.getVonNeumannNeighbours(cell, 1);
+        }
     };
     
-    private int a;
-	private int b;
-	private int c;
-	private int d;
+    private int a = -1;
+	private int b = -1;
+	private int c = -1;
+	private int d = -1;
+	
+	private Rules() {}
 	
 	private Rules(int a, int b, int c, int d) {
 		this.a = a;
@@ -47,7 +71,7 @@ public enum Rules implements Rule {
 	}
     
     @Override
-    public boolean apply(State state, Cell cell) {
+    public boolean apply(State state, Cell cell, Cell previouslyModified) {
 
         final List<Cell> neighbours = getNeighbours(state, cell);
         int alive = 0;

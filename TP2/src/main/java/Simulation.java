@@ -38,7 +38,7 @@ public class Simulation {
 
                 boolean isChecked = state.isChecked(cell);
 
-                if(!isChecked && rule.apply(state, cell)) {
+                if(!isChecked && rule.apply(state, cell, cell)) {
                     modified.add(cell);
                 }
 
@@ -49,7 +49,7 @@ public class Simulation {
                 for (Cell neighbour : neighbours) {
                     isChecked = state.isChecked(neighbour);
 
-                    if(!isChecked && rule.apply(state, neighbour)) {
+                    if(!isChecked && rule.apply(state, neighbour, cell)) {
                         modified.add(neighbour);
                     }
 
