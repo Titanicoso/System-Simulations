@@ -98,7 +98,7 @@ public class Simulation {
 //        }
 
 		ps.println(state.getAliveCount());
-		ps.println();
+		ps.println("R: " + state.getRadius());
 		for (Cell cell : state.getAlive()) {
 			ps.println(cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
@@ -129,6 +129,7 @@ public class Simulation {
 //        }
 		
 		System.out.println(state.getAliveCount());
+		System.out.println("R: " + state.getRadius());
 		for (Cell cell : state.getAlive()) {
 			System.out.println(cell.getX() + " " + cell.getY() + " " + cell.getZ());
 		}
