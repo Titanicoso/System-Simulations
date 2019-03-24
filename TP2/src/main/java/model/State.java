@@ -101,12 +101,12 @@ public class State {
         int y = cell.getY();
         int z = cell.getZ();
 
-        for (int i = -radius; i < radius; i++) {
-            for (int j = -radius; j < radius; j++) {
+        for (int i = -radius; i <= radius; i++) {
+            for (int j = -radius; j <= radius; j++) {
                 if(is3D) {
-                    for (int k = -radius; k < radius; k++) {
+                    for (int k = -radius; k <= radius; k++) {
                         if(Math.abs(i)+ Math.abs(j) + Math.abs(k) <= radius &&
-                                i != 0 && j != 0 && k != 0) {
+                                (i != 0 || j != 0 || k != 0)) {
                             neighbour = getCell(x + i, y + j, z + k);
 
                             if(neighbour != null)
@@ -114,7 +114,7 @@ public class State {
                         }
                     }
                 } else if (Math.abs(i) + Math.abs(j) <= radius &&
-                        i != 0 && j != 0) {
+                        (i != 0 || j != 0)) {
                     neighbour = getCell(x + i, y + j, 0);
 
                     if(neighbour != null)

@@ -33,29 +33,24 @@ public enum Rules implements Rule {
         }
         
     },
+    /*,
     ANTS {
 
+        Random r = new Random();
+
         @Override
-        public boolean apply(State state, Cell cell, Cell previouslyModified) {
-
-            if(cell == previouslyModified)
-                return true;
-
-            if(previouslyModified.isAlive()) {
-                return cell.getX() == previouslyModified.getX() + 1 &&
-                        cell.getY() == previouslyModified.getY() && cell.getZ() == previouslyModified.getZ();
-            }
-
-            return cell.getX() == previouslyModified.getX() - 1 &&
-                    cell.getY() == previouslyModified.getY() && cell.getZ() == previouslyModified.getZ();
+        public boolean apply(State state, Cell cell) {
+            return true;
         }
 
         @Override
         public List<Cell> getNeighbours(State state, Cell cell) {
-            return state.getVonNeumannNeighbours(cell, 1);
+            if(!cell.isAlive())
+                return Collections.emptyList();
+            int neighbour = r.nextInt(4);
+            return state.getVonNeumannNeighbours(cell, 1).subList(neighbour, neighbour + 1);
         }
-        
-    },
+    },*/
     MAZE(1, 5, 3, 3) {
 
         @Override
