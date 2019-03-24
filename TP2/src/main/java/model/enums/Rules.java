@@ -54,6 +54,39 @@ public enum Rules implements Rule {
         public List<Cell> getNeighbours(State state, Cell cell) {
             return state.getVonNeumannNeighbours(cell, 1);
         }
+        
+    },
+    MAZE(1, 5, 3, 3) {
+
+        @Override
+        public List<Cell> getNeighbours(State state, Cell cell) {
+            return state.getMooreNeighbours(cell, 1);
+        }
+        
+    },
+    STANDARD_3D(4, 5, 5, 5) {
+
+        @Override
+        public List<Cell> getNeighbours(State state, Cell cell) {
+            return state.getMooreNeighbours(cell, 1);
+        }
+        
+    },
+    TEST1_3D(5, 5, 4, 5) {
+
+        @Override
+        public List<Cell> getNeighbours(State state, Cell cell) {
+            return state.getMooreNeighbours(cell, 1);
+        }
+        
+    },
+    TEST2_3D(9, 9, 4, 4) {
+
+        @Override
+        public List<Cell> getNeighbours(State state, Cell cell) {
+            return state.getMooreNeighbours(cell, 1);
+        }
+        
     };
     
     private int a = -1;

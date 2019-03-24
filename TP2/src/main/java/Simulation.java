@@ -13,24 +13,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Simulation {
 	
 	static boolean append = false;
 
-    public static void simulate(int states, Rules rule,  Options options) {
+    public static void simulate(Rules rule,  Options options) {
 
         List<Cell> modified = new ArrayList<>();
 
         State state = new State(options.getDim(), options.is3D());
         if (options.getInput() != null) {
         	readInput(state, modified, options);
-        	state.changeState(modified);
-        	modified.clear();
+        } else {
+        	for (int i = 0; i < options.getN(); i++) {
+        		int x = rand(0, options.getDim());
+        		int y = rand(0, options.getDim());
+        		int z = options.is3D() ? rand(0, options.getDim()) : 0;
+        		Cell c = state.getCell(x, y, z);
+        		if (!modified.contains(c))
+        			modified.add(c);
+        		else
+        			i--;
+        	}
         }
+    	state.changeState(modified);
+    	modified.clear();
 
         int i = 0;
-        while (i < states) {
+        while (i < options.getStates()) {
             List<Cell> lastModified = state.getModified();
 
             for (Cell cell: lastModified) {
@@ -153,5 +165,9 @@ public class Simulation {
             System.err.println(e.getMessage());
             System.exit(1);
 		}
+	}
+	
+	private static int rand(int min, int max) {
+		return ThreadLocalRandom.current().nextInt(min, max);
 	}
 }

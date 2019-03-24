@@ -6,13 +6,19 @@ import org.kohsuke.args4j.Option;
 
 public class Options {
 	
+	@Option(name = "-N", usage = "Initial cells.", forbids={"-I"})
+    private Integer n = 1000;
+	
+	@Option(name = "-S", usage = "Number of states/iterations.")
+    private Integer states = 50;
+	
 	@Option(name = "-L", usage = "Dimension length.")
     private Integer dim = 100;
 	
 	@Option(name = "-3D", usage = "Enable 3D.")
     private boolean is3D = false;
 	
-	@Option(name = "-I", usage = "Input file.")
+	@Option(name = "-I", usage = "Input file.", forbids={"-N"})
     private File input;
 	
 	public Options(String[] args) {
@@ -32,6 +38,14 @@ public class Options {
             System.exit(1);
         }
     }
+	
+	public Integer getN() {
+		return n;
+	}
+	
+	public Integer getStates() {
+		return states;
+	}
 
 	public Integer getDim() {
 		return dim;

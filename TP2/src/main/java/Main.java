@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
     	Options options = new Options(args);
-        Simulation.simulate(20, Rules.STANDARD, options);
+        Simulation.simulate(Rules.STANDARD, options);
     }
 
 }
