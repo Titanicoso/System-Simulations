@@ -104,8 +104,7 @@ public class Simulation {
     }
     
     private static void printState(State state) {
-		System.out.println(state.getAliveCount());
-		System.out.println("R: " + state.getRadius());
+		System.out.println(state.getAliveCount() + " " + state.getRadius());
     }
     
 	private static void readInput(final State state, final List<Cell> modified, final Options options) {
