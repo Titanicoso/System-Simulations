@@ -11,6 +11,7 @@ public class State {
     private List<Cell> alive;
     private int dim;
     private boolean is3D;
+    private Cell center;
 
 
     public State(int dim, boolean is3D) {
@@ -150,7 +151,7 @@ public class State {
         double radius;
 
         for (Cell cell : this.alive) {
-            radius = cell.getDistanceToOrigin();
+            radius = cell.getDistanceToOrigin(center);
 
             if(radius > maxRadius) {
                 maxRadius = radius;
@@ -174,5 +175,20 @@ public class State {
     
     public boolean is3D() {
     	return is3D;
+    }
+
+    public void setCenter() {
+
+        double x = 0;
+        double y = 0;
+        double z = 0;
+
+        for (Cell cell : this.alive) {
+            x += cell.getX();
+            y += cell.getY();
+            z += cell.getZ();
+        }
+
+        center = new Cell((int) (x / alive.size()),(int) (y / alive.size()), (int)(z / alive.size()), false);
     }
 }

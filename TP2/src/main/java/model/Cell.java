@@ -56,8 +56,8 @@ public class Cell {
         alive = !alive;
     }
 
-    public double getDistanceToOrigin() {
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+    public double getDistanceToOrigin(Cell center) {
+        return Math.sqrt(Math.pow(x - center.getX(), 2) + Math.pow(y - center.getY(), 2) + Math.pow(z - center.getZ(), 2));
     }
 
     @Override

@@ -27,10 +27,14 @@ public class Simulation {
         if (options.getInput() != null) {
         	readInput(state, modified, options);
         } else {
+        	int domainX = rand(0, 2 * options.getDim()/3);
+			int domainY = rand(0, 2 * options.getDim()/3);
+			int domainZ = rand(0, 2 * options.getDim()/3);
+
         	for (int i = 0; i < options.getN(); i++) {
-        		int x = rand(0, options.getDim());
-        		int y = rand(0, options.getDim());
-        		int z = options.is3D() ? rand(0, options.getDim()) : 0;
+        		int x = rand(domainX, domainX + options.getDim()/3);
+        		int y = rand(domainY, domainY + options.getDim()/3);
+        		int z = options.is3D() ? rand(domainZ, domainZ + options.getDim()/3) : 0;
         		Cell c = state.getCell(x, y, z);
         		if (!modified.contains(c))
         			modified.add(c);
@@ -40,6 +44,7 @@ public class Simulation {
         }
     	state.changeState(modified);
     	modified.clear();
+		state.setCenter();
 
         int i = 0;
         while (i < options.getStates()) {
@@ -88,26 +93,6 @@ public class Simulation {
 			return;
 		}
 		PrintStream ps = new PrintStream(fos);
-		
-		int dim = state.getDim();
-		boolean is3D = state.is3D();
-		//List<Cell> alive = new ArrayList<>();
-		
-//		for (int i = 0; i < dim; i++) {
-//            for (int j = 0; j < dim; j++) {
-//                if(is3D) {
-//                    for (int k = 0; k < dim; k++) {
-//                    	Cell cell = state.getCell(i, j, k);
-//                    	if (cell.isAlive())
-//                    		alive.add(cell);
-//                    }
-//                } else {
-//                	Cell cell = state.getCell(i, j, 0);
-//                	if (cell.isAlive())
-//                		alive.add(cell);
-//                }
-//            }
-//        }
 
 		ps.println(state.getAliveCount());
 		ps.println("R: " + state.getRadius());
@@ -118,33 +103,9 @@ public class Simulation {
 		ps.close();
     }
     
-    private static void printState(State state) {	
-		int dim = state.getDim();
-		boolean is3D = state.is3D();
-		
-		//List<Cell> alive = new ArrayList<>();
-		
-//		for (int i = 0; i < dim; i++) {
-//            for (int j = 0; j < dim; j++) {
-//                if(is3D) {
-//                    for (int k = 0; k < dim; k++) {
-//                    	Cell cell = state.getCell(i, j, k);
-//                    	if (cell.isAlive())
-//                    		alive.add(cell);
-//                    }
-//                } else {
-//                	Cell cell = state.getCell(i, j, 0);
-//                	if (cell.isAlive())
-//                		alive.add(cell);
-//                }
-//            }
-//        }
-		
+    private static void printState(State state) {
 		System.out.println(state.getAliveCount());
 		System.out.println("R: " + state.getRadius());
-		for (Cell cell : state.getAlive()) {
-			System.out.println(cell.getX() + " " + cell.getY() + " " + cell.getZ());
-		}
     }
     
 	private static void readInput(final State state, final List<Cell> modified, final Options options) {
