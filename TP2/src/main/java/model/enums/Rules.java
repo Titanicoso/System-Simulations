@@ -99,7 +99,7 @@ public enum Rules implements Rule {
 	}
     
     @Override
-    public boolean apply(State state, Cell cell, Cell previouslyModified) {
+    public boolean apply(State state, Cell cell) {
 
         final List<Cell> neighbours = getNeighbours(state, cell);
         int alive = 0;
