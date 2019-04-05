@@ -49,11 +49,16 @@ public class Particle {
 		double radical;
 		if (type == CollisionType.PARTICLE_VS_VWALL) {
 			radical = vx > 0 ? length - radius : radius;
-			return (radical - x)/vx; 
+			return Double.compare(vx, 0D) == 0 ? null : (radical - x)/vx; 
 		}
 		
 		radical = vy > 0 ? length - radius : radius;
-		return (radical - y)/vy; 
+		return Double.compare(vy, 0D) == 0 ? null : (radical - y)/vy; 
+	}
+	
+	public void evolvePosition(double time) {
+		x = x + vx * time;
+		y = y + vy * time;
 	}
 	
 	public int getId() {

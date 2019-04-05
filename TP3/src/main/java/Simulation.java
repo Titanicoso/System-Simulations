@@ -1,7 +1,11 @@
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 import model.Area;
@@ -11,48 +15,63 @@ import model.Particle;
 
 public class Simulation {
 	
-	public static void simulate(int n, double length, double bigMass, double bigRadius,
-			double littleMass, double littleRadius, double velocityRange) {
-		Area area = initSimulation(n, length, bigMass, bigRadius, littleMass, littleRadius, velocityRange);
+	public static void simulate(Options options) {
+		Area area = initSimulation(options);
 		List<Particle> particles = area.getParticles();
-		Set<Collision> collisions = new TreeSet<>();
+		double length = area.getLength();
+		Map<Collision, Double> collisions = new HashMap<>();
 		Particle particle1, particle2;
 		Double collisionTime;
-		double time = 0;
 		
-		for (int i = 0; i < n; i++) {
+		collisions.put(new Collision(particles.get(0), particles.get(1), CollisionType.PARTICLE_VS_PARTICLE), 1.0);
+		collisions.put(new Collision(particles.get(1), particles.get(0), CollisionType.PARTICLE_VS_PARTICLE), 1.0);
+		System.out.println(new Collision(particles.get(0), particles.get(1), CollisionType.PARTICLE_VS_PARTICLE).equals(new Collision(particles.get(1), particles.get(0), CollisionType.PARTICLE_VS_PARTICLE)));
+		collisions.remove(new Collision(particles.get(0), particles.get(1), CollisionType.PARTICLE_VS_PARTICLE));
+		
+		for (int i = 0; i < particles.size(); i++) {
 			particle1 = particles.get(i);
-			for (int j = i + 1; j < n; j++) {
+			for (int j = i + 1; j < particles.size(); j++) {
 				particle2 = particles.get(j);
 				collisionTime = particle1.calculateCollisionTime(particle2);
 				if (collisionTime != null) {
-					collisions.add(new Collision(particle1, particle2, CollisionType.PARTICLE_VS_PARTICLE, collisionTime));
+					collisions.put(new Collision(particle1, particle2, CollisionType.PARTICLE_VS_PARTICLE), collisionTime);
 				}
 			}
 			collisionTime = particle1.calculateCollisionTime(CollisionType.PARTICLE_VS_HWALL, length);
-			collisions.add(new Collision(particle1, null, CollisionType.PARTICLE_VS_HWALL, collisionTime));
-			
+			if (collisionTime != null) {
+				collisions.put(new Collision(particle1, null, CollisionType.PARTICLE_VS_HWALL), collisionTime);
+			}
 			collisionTime = particle1.calculateCollisionTime(CollisionType.PARTICLE_VS_VWALL, length);
-			collisions.add(new Collision(particle1, null, CollisionType.PARTICLE_VS_VWALL, collisionTime));
+			if (collisionTime != null) {
+				collisions.put(new Collision(particle1, null, CollisionType.PARTICLE_VS_VWALL), collisionTime);
+			}
 		}
-		
-		
-		while(time < 1000) {
-			
+
+		boolean daBigTouchDaWall = false;
+		while(!daBigTouchDaWall) {
+			Entry<Collision, Double> entry = collisions.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().orElse(null);
+			Collision collision = entry.getKey();
+			double time = entry.getValue();
+			particles.parallelStream().forEach(p-> p.evolvePosition(time));
+			collisions.entrySet().parallelStream().forEach(c -> collisions.put(c.getKey(), c.getValue() - time));
+			collision.collide();
+			recalculateCollisions(particles, length, collision.getParticle1(), collisions);
+			recalculateCollisions(particles, length, collision.getParticle2(), collisions);
+			daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
 		}
+		return ;
 	}
 	
-	private static Area initSimulation(int n, double length, double bigMass, double bigRadius,
-			double littleMass, double littleRadius, double velocityRange) {
+	private static Area initSimulation(Options options) {
 		List<Particle> particles = new ArrayList<>();
-		particles.add(new Particle(0, length/2, length/2, bigRadius, 0, 0, bigMass, true));
+		particles.add(new Particle(0, options.getLength()/2, options.getLength()/2, options.getBigRadius(), 0, 0, options.getBigMass(), true));
 		int i = 0;
 		boolean overlapped;
-		while(i < n) {
-			Particle particle = new Particle(i+1, rand(littleRadius, length-littleRadius),
-					rand(littleRadius, length-littleRadius), littleRadius, 
-					rand(-velocityRange, velocityRange), rand(-velocityRange, velocityRange),
-					littleMass, false);
+		while(i < options.getN()) {
+			Particle particle = new Particle(i+1, rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()),
+					rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()), options.getLittleRadius(), 
+					rand(-options.getVelocityRange(), options.getVelocityRange()), rand(-options.getVelocityRange(), options.getVelocityRange()),
+					options.getLittleMass(), false);
 			overlapped = false;
 			for (Particle p : particles) {
 				if (particle.isOverlapped(p)) {
@@ -65,7 +84,31 @@ public class Simulation {
 				i++;
 			}
 		}
-		return new Area(length, particles);
+		return new Area(options.getLength(), particles);
+	}
+	
+	private static void recalculateCollisions(List<Particle> particles, double length, Particle particle, Map<Collision, Double> collisions) {
+		if(particle == null)
+			return;
+		Double collisionTime;
+		for (Particle p: particles) {
+			if (!p.equals(particle)) {
+			collisionTime = particle.calculateCollisionTime(p);
+				if (collisionTime != null) {
+					collisions.put(new Collision(particle, p, CollisionType.PARTICLE_VS_PARTICLE), collisionTime);
+				} else {
+					collisions.remove(new Collision(particle, p, CollisionType.PARTICLE_VS_PARTICLE));
+				}
+			}
+			collisionTime = particle.calculateCollisionTime(CollisionType.PARTICLE_VS_HWALL, length);
+			if (collisionTime != null) {
+				collisions.put(new Collision(particle, null, CollisionType.PARTICLE_VS_HWALL), collisionTime);
+			}
+			collisionTime = particle.calculateCollisionTime(CollisionType.PARTICLE_VS_VWALL, length);
+			if (collisionTime != null) {
+				collisions.put(new Collision(particle, null, CollisionType.PARTICLE_VS_VWALL), collisionTime);
+			}
+		}
 	}
 	
 	private static double rand(double min, double max) {
