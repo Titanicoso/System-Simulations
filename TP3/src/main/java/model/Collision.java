@@ -1,16 +1,22 @@
 package model;
 
-public class Collision{
+public class Collision implements Comparable<Collision> {
 	
 	private Particle particle1;
 	private Particle particle2;
 	private CollisionType type;
+	private double time;
 	
-	public Collision(Particle particle1, Particle particle2, CollisionType type) {
+	public Collision(Particle particle1, Particle particle2, CollisionType type, double time) {
 		this.particle1 = particle1;
 		this.particle2 = particle2;
 		this.type = type;
-	}	
+		this.time = time;
+	}
+	
+	public void updateTime(double time) {
+		this.time -= time;
+	}
 	
 	public void collide() {
 		switch (type) {
@@ -32,6 +38,10 @@ public class Collision{
 				particle1.setVy(particle2.getVy() - j * dr[1] / (sigma * particle2.getMass()));
 				break;
 		}
+	}
+	
+	public boolean hasParticle(Particle particle) {
+		return particle1.equals(particle) || (particle2 != null && particle2.equals(particle));
 	}
 
 	public Particle getParticle1() {
@@ -56,6 +66,19 @@ public class Collision{
 
 	public void setType(CollisionType type) {
 		this.type = type;
+	}
+
+	public double getTime() {
+		return time;
+	}
+
+	public void setTime(double time) {
+		this.time = time;
+	}
+
+	@Override
+	public int compareTo(Collision o) {
+		return Double.compare(time, o.time);
 	}
 
 	@Override
@@ -95,6 +118,5 @@ public class Collision{
 			return false;
 		return true;
 	}
-	
 
 }
