@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -9,6 +13,8 @@ import model.CollisionType;
 import model.Particle;
 
 public class Simulation {
+	
+	static boolean append = false;
 	
 	public static void simulate(Options options) {
 		Area area = initSimulation(options);
@@ -37,6 +43,7 @@ public class Simulation {
 			}
 		}
 
+		logParticles(particles);
 		boolean daBigTouchDaWall = false;
 		while(!daBigTouchDaWall) {
 			Collision collision = collisions.poll();
@@ -47,8 +54,8 @@ public class Simulation {
 			recalculateCollisions(particles, length, collision.getParticle1(), collisions);
 			recalculateCollisions(particles, length, collision.getParticle2(), collisions);
 			daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
+			logParticles(particles);
 		}
-		return ;
 	}
 	
 	private static Area initSimulation(Options options) {
@@ -100,6 +107,26 @@ public class Simulation {
 			}
 		}
 	}
+	
+    private static void logParticles(List<Particle> particles) {
+    	File file = new File("output.xyz");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, append);
+			append = true;
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+
+		ps.println(particles.size());
+		ps.println();
+		for (Particle p : particles) {
+			ps.println(p.getId() + " " + p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass());
+		}
+		
+		ps.close();
+    }
 	
 	private static double rand(double min, double max) {
 		return ThreadLocalRandom.current().nextDouble(min, max);
