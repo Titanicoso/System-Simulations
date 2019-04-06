@@ -97,14 +97,15 @@ public class Simulation {
 					collisions.add(new Collision(particle, p, CollisionType.PARTICLE_VS_PARTICLE, collisionTime));
 				}
 			}
-			collisionTime = particle.calculateCollisionTime(CollisionType.PARTICLE_VS_HWALL, length);
-			if (collisionTime != null) {
-				collisions.add(new Collision(particle, null, CollisionType.PARTICLE_VS_HWALL, collisionTime));
-			}
-			collisionTime = particle.calculateCollisionTime(CollisionType.PARTICLE_VS_VWALL, length);
-			if (collisionTime != null) {
-				collisions.add(new Collision(particle, null, CollisionType.PARTICLE_VS_VWALL, collisionTime));
-			}
+		}
+
+		collisionTime = particle.calculateCollisionTime(CollisionType.PARTICLE_VS_HWALL, length);
+		if (collisionTime != null) {
+			collisions.add(new Collision(particle, null, CollisionType.PARTICLE_VS_HWALL, collisionTime));
+		}
+		collisionTime = particle.calculateCollisionTime(CollisionType.PARTICLE_VS_VWALL, length);
+		if (collisionTime != null) {
+			collisions.add(new Collision(particle, null, CollisionType.PARTICLE_VS_VWALL, collisionTime));
 		}
 	}
 	
@@ -122,7 +123,7 @@ public class Simulation {
 		ps.println(particles.size());
 		ps.println();
 		for (Particle p : particles) {
-			ps.println(p.getId() + " " + p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass());
+			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass());
 		}
 		
 		ps.close();
