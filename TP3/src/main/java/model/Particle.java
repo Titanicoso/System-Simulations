@@ -41,8 +41,14 @@ public class Particle {
 		
 		if (d < 0)
 			return null;
+
+		double t1 = -(vXr + Math.sqrt(d))/(vXv);
+		double t2 = -(vXr - Math.sqrt(d))/(vXv);
+
+		if(t1 < 0)
+			return t2;
 		
-		return -(vXr + Math.sqrt(d))/(vXv);
+		return Math.min(t1, t2);
 	}
 	
 	public Double calculateCollisionTime(CollisionType type, double length) {
