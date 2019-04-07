@@ -27,15 +27,15 @@ public class Collision implements Comparable<Collision> {
 				particle1.setVx(-particle1.getVx());
 				break;
 			case PARTICLE_VS_PARTICLE:
-				double[] dr = {particle1.getX() - particle2.getX(), particle1.getY() - particle2.getY()};
-				double[] dv = {particle1.getVx() - particle2.getVx(), particle1.getVy() - particle2.getVy()};
+				double[] dr = {particle2.getX() - particle1.getX(), particle2.getY() - particle1.getY()};
+				double[] dv = {particle2.getVx() - particle1.getVx(), particle2.getVy() - particle1.getVy()};
 				double sigma = particle1.getRadius() + particle2.getRadius();
 				double vXr = dr[0] * dv[0] + dr[1] * dv[1];
 				double j = (2 * particle1.getMass() * particle2.getMass() * vXr) / (sigma * (particle1.getMass() + particle2.getMass()));
-				particle1.setVx(particle1.getVx() - j * dr[0] / (sigma * particle1.getMass()));
-				particle1.setVy(particle1.getVy() - j * dr[1] / (sigma * particle1.getMass()));
-				particle2.setVx(particle2.getVx() + j * dr[0] / (sigma * particle2.getMass()));
-				particle1.setVy(particle2.getVy() + j * dr[1] / (sigma * particle2.getMass()));
+				particle1.setVx(particle1.getVx() + j * dr[0] / (sigma * particle1.getMass()));
+				particle1.setVy(particle1.getVy() + j * dr[1] / (sigma * particle1.getMass()));
+				particle2.setVx(particle2.getVx() - j * dr[0] / (sigma * particle2.getMass()));
+				particle2.setVy(particle2.getVy() - j * dr[1] / (sigma * particle2.getMass()));
 				break;
 		}
 	}

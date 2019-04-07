@@ -21,32 +21,13 @@ public class Simulation {
 		List<Particle> particles = area.getParticles();
 		double length = area.getLength();
 		PriorityQueue<Collision> collisions = new PriorityQueue<>();
-		Particle particle1, particle2;
-		Double collisionTime;
 		
-		for (int i = 0; i < particles.size(); i++) {
-			particle1 = particles.get(i);
-			for (int j = i + 1; j < particles.size(); j++) {
-				particle2 = particles.get(j);
-				collisionTime = particle1.calculateCollisionTime(particle2);
-				if (collisionTime != null) {
-					collisions.add(new Collision(particle1, particle2, CollisionType.PARTICLE_VS_PARTICLE, collisionTime));
-				}
-			}
-			collisionTime = particle1.calculateCollisionTime(CollisionType.PARTICLE_VS_HWALL, length);
-			if (collisionTime != null) {
-				collisions.add(new Collision(particle1, null, CollisionType.PARTICLE_VS_HWALL, collisionTime));
-			}
-			collisionTime = particle1.calculateCollisionTime(CollisionType.PARTICLE_VS_VWALL, length);
-			if (collisionTime != null) {
-				collisions.add(new Collision(particle1, null, CollisionType.PARTICLE_VS_VWALL, collisionTime));
-			}
-		}
-
-		logParticles(particles);
+		calculateCollisions(particles, length, collisions);
+		logParticles(particles, length);
+		
 		boolean daBigTouchDaWall = false;
 		while(!daBigTouchDaWall) {
-			Collision collision = collisions.poll();
+			Collision collision = collisions.remove();
 			double time = collision.getTime();
 			particles.parallelStream().forEach(p -> p.evolvePosition(time));
 			collisions.parallelStream().forEach(c -> c.updateTime(time));
@@ -54,7 +35,37 @@ public class Simulation {
 			recalculateCollisions(particles, length, collision.getParticle1(), collisions);
 			recalculateCollisions(particles, length, collision.getParticle2(), collisions);
 			daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
-			logParticles(particles);
+			logParticles(particles, length);
+		}
+	}
+	
+	public static void simulate(Options options, double dt) {
+		Area area = initSimulation(options);
+		List<Particle> particles = area.getParticles();
+		double length = area.getLength();
+		PriorityQueue<Collision> collisions = new PriorityQueue<>();
+		
+		calculateCollisions(particles, length, collisions);
+		logParticles(particles, length);
+		
+		boolean daBigTouchDaWall = false;
+		while(!daBigTouchDaWall) {
+			Collision collision = collisions.peek();
+			double time = collision.getTime();
+			if (time <= dt) {
+				collisions.remove();
+				particles.parallelStream().forEach(p -> p.evolvePosition(time));
+				collisions.parallelStream().forEach(c -> c.updateTime(time));
+				collision.collide();
+				recalculateCollisions(particles, length, collision.getParticle1(), collisions);
+				recalculateCollisions(particles, length, collision.getParticle2(), collisions);
+				daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
+			} else {
+				particles.parallelStream().forEach(p -> p.evolvePosition(dt));
+				collisions.parallelStream().forEach(c -> c.updateTime(dt));
+			}
+			if (time >= dt)
+				logParticles(particles, length);
 		}
 	}
 	
@@ -83,6 +94,30 @@ public class Simulation {
 		return new Area(options.getLength(), particles);
 	}
 	
+	private static void calculateCollisions(List<Particle> particles, double length, PriorityQueue<Collision> collisions) {
+		Particle particle1, particle2;
+		Double collisionTime;
+		
+		for (int i = 0; i < particles.size(); i++) {
+			particle1 = particles.get(i);
+			for (int j = i + 1; j < particles.size(); j++) {
+				particle2 = particles.get(j);
+				collisionTime = particle1.calculateCollisionTime(particle2);
+				if (collisionTime != null) {
+					collisions.add(new Collision(particle1, particle2, CollisionType.PARTICLE_VS_PARTICLE, collisionTime));
+				}
+			}
+			collisionTime = particle1.calculateCollisionTime(CollisionType.PARTICLE_VS_HWALL, length);
+			if (collisionTime != null) {
+				collisions.add(new Collision(particle1, null, CollisionType.PARTICLE_VS_HWALL, collisionTime));
+			}
+			collisionTime = particle1.calculateCollisionTime(CollisionType.PARTICLE_VS_VWALL, length);
+			if (collisionTime != null) {
+				collisions.add(new Collision(particle1, null, CollisionType.PARTICLE_VS_VWALL, collisionTime));
+			}
+		}
+	}
+	
 	private static void recalculateCollisions(List<Particle> particles, double length, Particle particle, PriorityQueue<Collision> collisions) {
 		if (particle == null)
 			return;
@@ -109,7 +144,7 @@ public class Simulation {
 		}
 	}
 	
-    private static void logParticles(List<Particle> particles) {
+    private static void logParticles(List<Particle> particles, double length) {
     	File file = new File("output.xyz");
 		FileOutputStream fos = null;
 		try {
@@ -121,7 +156,7 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println();
+		ps.println("Lattice=\"1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0\" Properties=pos:R:2:vel:R:2:radius:R:1:mass:R:1");
 		for (Particle p : particles) {
 			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass());
 		}
