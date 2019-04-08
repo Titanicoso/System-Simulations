@@ -49,12 +49,15 @@ public class Simulation {
 		logParticles(particles, length);
 		
 		boolean daBigTouchDaWall = false;
+		double timeSinceLastCollision = 0;
 		while(!daBigTouchDaWall) {
 			Collision collision = collisions.peek();
 			double time = collision.getTime();
-			if (time <= dt) {
+			if (timeSinceLastCollision + dt >= time) {
 				collisions.remove();
-				particles.parallelStream().forEach(p -> p.evolvePosition(time));
+				double advance = time - timeSinceLastCollision;
+				timeSinceLastCollision = 0;
+				particles.parallelStream().forEach(p -> p.evolvePosition(advance));
 				collisions.parallelStream().forEach(c -> c.updateTime(time));
 				collision.collide();
 				recalculateCollisions(particles, length, collision.getParticle1(), collisions);
@@ -62,11 +65,11 @@ public class Simulation {
 				daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
 			} else {
 				particles.parallelStream().forEach(p -> p.evolvePosition(dt));
-				collisions.parallelStream().forEach(c -> c.updateTime(dt));
-			}
-			if (time >= dt)
+				timeSinceLastCollision += dt;
 				logParticles(particles, length);
+			}
 		}
+		logParticles(particles, length);
 	}
 	
 	private static Area initSimulation(Options options) {
