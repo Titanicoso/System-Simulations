@@ -32,6 +32,7 @@ public class Simulation {
 		while(!daBigTouchDaWall) {
 			Collision collision = collisions.remove();
 			double time = collision.getTime();
+			totalTime += time;
 			particles.parallelStream().forEach(p -> p.evolvePosition(time));
 			collisions.parallelStream().forEach(c -> c.updateTime(time));
 			logParticles(particles, length, totalTime);
@@ -39,7 +40,6 @@ public class Simulation {
 			recalculateCollisions(particles, length, collision.getParticle1(), collisions);
 			recalculateCollisions(particles, length, collision.getParticle2(), collisions);
 			daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
-			totalTime += time;
 			totalCollisions++;
 		}
 
