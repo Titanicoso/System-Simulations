@@ -178,8 +178,8 @@ public class Simulation {
     private static double calculateKineticEnergy(final List<Particle> particles) {
 
 		return particles.stream()
-				.mapToDouble(particle -> 0.5 * particle.getMass() * (Math.pow(particle.getVx(), 2) + Math.pow(particle.getVy(), 2)))
-				.sum();
+				.mapToDouble(particle -> 0.5 * (particle.getMass() / 1000) * (Math.pow(particle.getVx(), 2) + Math.pow(particle.getVy(), 2)))
+				.average().orElse(0);
 	}
 
 	private static void logParticles(List<Particle> particles, double length, double time) {
