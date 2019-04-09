@@ -21,22 +21,30 @@ public class Simulation {
 		List<Particle> particles = area.getParticles();
 		double length = area.getLength();
 		PriorityQueue<Collision> collisions = new PriorityQueue<>();
+		double totalTime = 0;
+		int totalCollisions = 0;
 		
 		calculateCollisions(particles, length, collisions);
 		logParticles(particles, length);
-		
+
+		System.out.println("Energia Cinetica: " + calculateKineticEnergy(particles));
 		boolean daBigTouchDaWall = false;
 		while(!daBigTouchDaWall) {
 			Collision collision = collisions.remove();
 			double time = collision.getTime();
 			particles.parallelStream().forEach(p -> p.evolvePosition(time));
 			collisions.parallelStream().forEach(c -> c.updateTime(time));
+			logParticles(particles, length, totalTime);
 			collision.collide();
 			recalculateCollisions(particles, length, collision.getParticle1(), collisions);
 			recalculateCollisions(particles, length, collision.getParticle2(), collisions);
 			daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
-			logParticles(particles, length);
+			totalTime += time;
+			totalCollisions++;
 		}
+
+		System.out.println("Colisiones: " + totalCollisions);
+		System.out.println("Tiempo: " + totalTime);
 	}
 	
 	public static void simulate(Options options, double dt) {
@@ -166,6 +174,33 @@ public class Simulation {
 		
 		ps.close();
     }
+
+    private static double calculateKineticEnergy(final List<Particle> particles) {
+
+		return particles.stream()
+				.mapToDouble(particle -> 0.5 * particle.getMass() * (Math.pow(particle.getVx(), 2) + Math.pow(particle.getVy(), 2)))
+				.sum();
+	}
+
+	private static void logParticles(List<Particle> particles, double length, double time) {
+		File file = new File("output.xyz");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, append);
+			append = true;
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+
+		ps.println(particles.size());
+		ps.println(time);
+		for (Particle p : particles) {
+			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass());
+		}
+
+		ps.close();
+	}
 	
 	private static double rand(double min, double max) {
 		return ThreadLocalRandom.current().nextDouble(min, max);
