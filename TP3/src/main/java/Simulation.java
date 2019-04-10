@@ -209,6 +209,11 @@ public class Simulation {
 		}
 
 		PrintStream ps = new PrintStream(fos);
+
+		if(!append) {
+			ps.println(particles.size());
+		}
+
 		ps.println(time);
 		for (Particle particle: particles) {
 			ps.println(particle.getVelocityModule());
