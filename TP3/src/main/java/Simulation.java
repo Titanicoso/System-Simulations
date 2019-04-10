@@ -95,7 +95,11 @@ public class Simulation {
 		particles.add(new Particle(0, options.getLength()/2, options.getLength()/2, options.getBigRadius(), 0, 0, options.getBigMass(), true));
 		int i = 0;
 		boolean overlapped;
+		double xRange = Math.sqrt(Math.pow(options.getVelocityRange(), 2));
 		while(i < options.getN()) {
+			double x = rand(-xRange, xRange);
+			double yRange = Math.sqrt(Math.pow(options.getVelocityRange(), 2) + Math.pow(x, 2));
+			double y = rand(-yRange, yRange);
 			Particle particle = new Particle(i+1, rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()),
 					rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()), options.getLittleRadius(), 
 					rand(-options.getVelocityRange(), options.getVelocityRange()), rand(-options.getVelocityRange(), options.getVelocityRange()),
