@@ -101,9 +101,8 @@ public class Simulation {
 			double yRange = Math.sqrt(Math.pow(xRange, 2) - Math.pow(x, 2));
 			double y = rand(-yRange, yRange);
 			Particle particle = new Particle(i+1, rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()),
-					rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()), options.getLittleRadius(), 
-					rand(-options.getVelocityRange(), options.getVelocityRange()), rand(-options.getVelocityRange(), options.getVelocityRange()),
-					options.getLittleMass(), false);
+					rand(options.getLittleRadius(), options.getLength()-options.getLittleRadius()), options.getLittleRadius(),
+			x, y, options.getLittleMass(), false);
 			overlapped = false;
 			for (Particle p : particles) {
 				if (particle.isOverlapped(p)) {
