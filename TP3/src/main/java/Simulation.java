@@ -200,7 +200,7 @@ public class Simulation {
 	}
 
 	private static void logVelocityModules(List<Particle> particles, double time) {
-		File file = new File("velocityModules.data");
+		File file = new File("velocity_modules.data");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file, append);
