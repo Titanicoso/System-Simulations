@@ -15,20 +15,27 @@ import model.Particle;
 public class Simulation {
 	
 	static boolean append = false;
+	static boolean timesAppend = false;
 	
-	public static void simulate(Options options) {
+	public static void simulate(Options options, int particleId) {
 		Area area = initSimulation(options);
 		List<Particle> particles = area.getParticles();
 		double length = area.getLength();
 		PriorityQueue<Collision> collisions = new PriorityQueue<>();
 		double totalTime = 0;
 		int totalCollisions = 0;
+
+		double initialX = particles.get(particleId).getX();
+		double initialY = particles.get(particleId).getY();
+		logMeanSquaredDisplacement(particles.get(particleId), initialX, initialY, totalTime);
 		
 		calculateCollisions(particles, length, collisions);
-		logParticles(particles, length);
+		logParticles(particles, length, totalTime);
 
 		System.out.println("Energia Cinetica: " + calculateKineticEnergy(particles));
+		logVelocityModules(particles, totalTime);
 		boolean daBigTouchDaWall = false;
+		append = true;
 		while(!daBigTouchDaWall) {
 			Collision collision = collisions.remove();
 			double time = collision.getTime();
@@ -39,8 +46,11 @@ public class Simulation {
 			collision.collide();
 			recalculateCollisions(particles, length, collision.getParticle1(), collisions);
 			recalculateCollisions(particles, length, collision.getParticle2(), collisions);
-			daBigTouchDaWall = collision.getParticle1().isBig() && collision.getParticle2() == null;
+			daBigTouchDaWall = collision.getParticle1().getId() == particleId && collision.getParticle2() == null;
 			totalCollisions++;
+			logCollisionTime(totalTime);
+			logVelocityModules(particles, totalTime);
+			logMeanSquaredDisplacement(particles.get(particleId), initialX, initialY, totalTime);
 		}
 
 		System.out.println("Colisiones: " + totalCollisions);
@@ -175,6 +185,54 @@ public class Simulation {
 		ps.close();
     }
 
+	private static void logCollisionTime(double time) {
+		File file = new File("collision_times.data");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, timesAppend);
+			timesAppend = true;
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		PrintStream ps = new PrintStream(fos);
+		ps.println(time);
+		ps.close();
+	}
+
+	private static void logVelocityModules(List<Particle> particles, double time) {
+		File file = new File("velocityModules.data");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, append);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+
+		PrintStream ps = new PrintStream(fos);
+		ps.println(time);
+		for (Particle particle: particles) {
+			ps.println(particle.getVelocityModule());
+		}
+
+		ps.println();
+
+		ps.close();
+	}
+
+	private static void logMeanSquaredDisplacement(Particle particle, double initialX, double initialY, double time) {
+		File file = new File("MSD.data");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, append);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+
+		PrintStream ps = new PrintStream(fos);
+		ps.println(time + " " + calculateMeanSquaredDisplacement(particle, initialX, initialY) + " " + particle.getX() + " " + particle.getY());
+		ps.close();
+	}
+
     private static double calculateKineticEnergy(final List<Particle> particles) {
 
 		return particles.stream()
@@ -182,12 +240,17 @@ public class Simulation {
 				.average().orElse(0);
 	}
 
+	private static double calculateMeanSquaredDisplacement(Particle particle, double initialX, double initialY) {
+
+		return Math.pow(particle.getX() - initialX, 2) + Math.pow(particle.getY() - initialY, 2);
+
+	}
+
 	private static void logParticles(List<Particle> particles, double length, double time) {
 		File file = new File("output.xyz");
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(file, append);
-			append = true;
 		} catch (FileNotFoundException e) {
 			return;
 		}

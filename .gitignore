@@ -1,4 +1,5 @@
 *.xyz
+*.data
 
 # Created by https://www.gitignore.io/api/macos,linux,eclipse,windows,intellij,sublimetext
 # Edit at https://www.gitignore.io/?templates=macos,linux,eclipse,windows,intellij,sublimetext

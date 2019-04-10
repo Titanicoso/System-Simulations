@@ -66,6 +66,10 @@ public class Particle {
 		x = x + vx * time;
 		y = y + vy * time;
 	}
+
+	public double getVelocityModule() {
+		return Math.hypot(vx, vy);
+	}
 	
 	public int getId() {
 		return id;
