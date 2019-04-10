@@ -265,9 +265,9 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println(time);
+		ps.println("Lattice=\"1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
-			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass());
+			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius() + " " + p.getMass()+ " " + p.getVelocityModule());
 		}
 
 		ps.close();
