@@ -5,7 +5,7 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name = "-N", usage = "Initial particles.")
-    private Integer n = 10;
+    private Integer n = 100;
 	
 	@Option(name = "-L", usage = "Dimension length.")
     private Double length = 0.5;
