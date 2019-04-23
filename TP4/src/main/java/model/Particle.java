@@ -3,25 +3,23 @@ package model;
 public class Particle {
 
 	private int id;
-	private double x;
-	private double y;
-	private double vx;
-	private double vy;
+	private Pair position;
+	private Pair velocity;
+	private double mass;
 	
-	public Particle(final int id, final double x, final double y, final double vx, final double vy) {
+	public Particle(final int id, final double x, final double y, final double vx, final double vy, final double mass) {
 		this.id = id;
-		this.x = x;
-		this.y = y;
-		this.vx = vx;
-		this.vy = vy;
+		this.position = new Pair(x, y);
+		this.velocity = new Pair(vx, vy);
+		this.mass = mass;
 	}
 	
 	public boolean isOverlapped(final Particle particle) {
-		return particle.getX() == x && particle.getY() == y;
+		return particle.getX() == getX() && particle.getY() == getY();
 	}
 
 	public double getVelocityModule() {
-		return Math.hypot(vx, vy);
+		return Math.hypot(getVx(), getVy());
 	}
 	
 	public int getId() {
@@ -32,36 +30,43 @@ public class Particle {
 		this.id = id;
 	}
 
-	public double getX() {
-		return x;
+	public Pair getPosition() {
+		return position;
 	}
-	
-	public void setX(double x) {
-		this.x = x;
+
+	public Pair getVelocity() {
+		return velocity;
+	}
+
+    public void setPosition(Pair position) {
+        this.position = position;
+    }
+
+    public void setVelocity(Pair velocity) {
+        this.velocity = velocity;
+    }
+
+    public double getX() {
+		return position.getX();
 	}
 	
 	public double getY() {
-		return y;
-	}
-	
-	public void setY(double y) {
-		this.y = y;
+		return position.getY();
 	}
 
 	public double getVx() {
-		return vx;
-	}
-
-	public void setVx(double vx) {
-		this.vx = vx;
+		return velocity.getX();
 	}
 
 	public double getVy() {
-		return vy;
+		return velocity.getY();
 	}
 
-	public void setVy(double vy) {
-		this.vy = vy;
+	public double getMass() {
+		return mass;
 	}
-		
+
+	public void setMass(double mass) {
+		this.mass = mass;
+	}
 }
