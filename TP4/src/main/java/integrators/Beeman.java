@@ -25,18 +25,29 @@ public class Beeman {
                 .multiplyByScalar(2 * dt * dt / (3 * mass))
                 .sum(particle.getPosition())
                 .sum(initialVelocity.getX() * dt, initialVelocity.getY() * dt)
-                .substract(new Pair(previousForce).multiplyByScalar(dt * dt / 6));
+                .substract(new Pair(previousForce).multiplyByScalar(dt * dt / (6 * mass)));
 
-        final Pair newForce = initialForce;
+        final Pair newForce;
+        if (force.isVelocityDependant()) {
+        	 final Pair intermediateVelocity = new Pair(initialForce)
+                     .multiplyByScalar(3 * dt / (2 * mass))
+                     .sum(initialVelocity)
+                     .substract(new Pair(previousForce).multiplyByScalar(dt / (2 * mass)));
+        	 newForce = force.getForce(new Particle(particle.getId(), newPosition.getX(),
+        			 newPosition.getY(), intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles);
+        } else {
+          	 newForce = force.getForce(new Particle(particle.getId(), newPosition.getX(),
+        			 newPosition.getY(), initialVelocity.getX(), initialVelocity.getY(), mass), particles);
+        }
 
-//        final Pair newVelocity = new Pair(initialForce)
-//                .multiplyByScalar(2 * dt * dt / (3 * mass))
-//                .sum(particle.getPosition())
-//                .sum(initialVelocity.getX() * dt, initialVelocity.getY() * dt)
-//                .substract(new Pair(previousForce).multiplyByScalar(dt * dt / 6));
+        final Pair newVelocity = initialForce
+                .multiplyByScalar(5 * dt / (6 * mass))
+                .sum(initialVelocity)
+                .sum(newForce.multiplyByScalar(dt / (3 * mass)))
+                .substract(previousForce.multiplyByScalar(dt / (6 * mass)));
 
         particle.setPosition(newPosition);
-//        particle.setVelocity(newVelocity);
+        particle.setVelocity(newVelocity);
 
         return particle;
     }
