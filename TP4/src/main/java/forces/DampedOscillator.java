@@ -8,7 +8,6 @@ import java.util.List;
 
 public class DampedOscillator implements Force {
 
-    private static final double MASS = 70.0;
     private static final double K = 10000;
     private static final double GAMMA = 70.0;
     private static final double A = 1.0;

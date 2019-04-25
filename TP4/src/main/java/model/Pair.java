@@ -46,4 +46,9 @@ public class Pair {
         y *= scalar;
         return this;
     }
+
+	@Override
+	public String toString() {
+		return "Pair [x=" + x + ", y=" + y + "]";
+	}
 }

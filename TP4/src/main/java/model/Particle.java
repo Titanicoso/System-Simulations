@@ -69,4 +69,9 @@ public class Particle {
 	public void setMass(double mass) {
 		this.mass = mass;
 	}
+
+	@Override
+	public String toString() {
+		return "Particle [position=" + position + "]";
+	}
 }
