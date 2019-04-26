@@ -13,6 +13,7 @@ import integrators.GearPredictorCorrector;
 import integrators.VelocityVerlet;
 import interfaces.Force;
 import model.Area;
+import model.Pair;
 import model.Particle;
 
 public class Simulation {
@@ -21,15 +22,31 @@ public class Simulation {
 	
 	public static void simulate(Options options) {
 		Particle particle = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
+		Particle particle1 = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
+		Particle particle2 = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
+		Particle particle3 = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
 		Beeman beeman = new Beeman();
 		GearPredictorCorrector gpc = new GearPredictorCorrector();
 		VelocityVerlet vv = new VelocityVerlet();
 		Force f = new DampedOscillator();
 		double dt = 0.000001;
-		System.out.println(f.getAnalyticalSolution(particle, dt));
-		System.out.println(beeman.evolve(particle, dt, null, f, null));
-		System.out.println(gpc.evolve(particle, dt, null, f));
-		System.out.println(vv.evolve(particle, dt, null, f));
+		double e1 = 0;
+		double e2 = 0;
+		double e3 = 0;
+		double t = 0;
+		while(t < 5) {
+			t += dt;
+			Pair p1 = f.getAnalyticalSolution(particle, t);
+			Pair p2 = beeman.evolve(particle1, dt, null, f, null).getPosition();
+			Pair p3 = gpc.evolve(particle2, dt, null, f).getPosition();
+			Pair p4 = vv.evolve(particle3, dt, null, f).getPosition();
+			e1 += Math.pow(p1.getX() - p2.getX(), 2);
+			e2 += Math.pow(p1.getX() - p3.getX(), 2);
+			e3 += Math.pow(p1.getX() - p4.getX(), 2);
+		}
+		System.out.println(e1/(t/dt));
+		System.out.println(e2/(t/dt));
+		System.out.println(e3/(t/dt));
 	}
 
 	private static void logParticles(List<Particle> particles) {

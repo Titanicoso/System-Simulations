@@ -15,26 +15,26 @@ public class DampedOscillator implements Force {
 
     @Override
     public Pair getForce(final Particle particle, final List<Particle> particles) {
-        final double x = -K * particle.getX() - GAMMA * particle.getVy();
+        final double x = -K * particle.getX() - GAMMA * particle.getVx();
         return new Pair(x, 0);
     }
 
     @Override
     public Pair getD1(final Particle particle, final List<Particle> particles) {
-        final double x = K * GAMMA * particle.getX() + (GAMMA * GAMMA - K) * particle.getVy();
+        final double x = K * GAMMA * particle.getX() + (GAMMA * GAMMA - K) * particle.getVx();
         return new Pair(x, 0);
     }
 
     @Override
     public Pair getD2(final Particle particle, final List<Particle> particles) {
-        final double x = (K * K - K * GAMMA * GAMMA) * particle.getX() + (2 * K * GAMMA - Math.pow(GAMMA, 3)) * particle.getVy();
+        final double x = (K * K - K * GAMMA * GAMMA) * particle.getX() + (2 * K * GAMMA - Math.pow(GAMMA, 3)) * particle.getVx();
         return new Pair(x, 0);
     }
 
     @Override
     public Pair getD3(final Particle particle, final List<Particle> particles) {
         final double x = (K * Math.pow(GAMMA, 3) - 2 * K * K * GAMMA) * particle.getX()
-                + (K * K - 3 * K * GAMMA * GAMMA + Math.pow(GAMMA, 4)) * particle.getVy();
+                + (K * K - 3 * K * GAMMA * GAMMA + Math.pow(GAMMA, 4)) * particle.getVx();
         return new Pair(x, 0);
     }
 
