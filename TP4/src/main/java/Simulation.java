@@ -20,7 +20,7 @@ public class Simulation {
 
 	static boolean append = false;
 	
-	public static void simulate(Options options) {
+	public static void simulate1(Options options) {
 		Particle particle = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
 		Particle particle1 = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
 		Particle particle2 = new Particle(0, 1.0, 0.0, -100.0/170, 0, 70);
@@ -34,15 +34,17 @@ public class Simulation {
 		double e2 = 0;
 		double e3 = 0;
 		double t = 0;
+		Pair[] previous = null;
 		while(t < 5) {
 			t += dt;
 			Pair p1 = f.getAnalyticalSolution(particle, t);
-			Pair p2 = beeman.evolve(particle1, dt, null, f, null).getPosition();
+			Pair p2 = beeman.evolve(particle1, dt, null, f, previous).getPosition();
 			Pair p3 = gpc.evolve(particle2, dt, null, f).getPosition();
 			Pair p4 = vv.evolve(particle3, dt, null, f).getPosition();
 			e1 += Math.pow(p1.getX() - p2.getX(), 2);
 			e2 += Math.pow(p1.getX() - p3.getX(), 2);
 			e3 += Math.pow(p1.getX() - p4.getX(), 2);
+			previous = new Pair[] { p2, particle1.getVelocity() };
 		}
 		System.out.println(e1/(t/dt));
 		System.out.println(e2/(t/dt));

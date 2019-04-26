@@ -46,10 +46,10 @@ public class GearPredictorCorrector {
         final Pair acceleration = force.getForce(new Particle(particle.getId(), predictedR.getX(), predictedR.getY(),
                 predictedR1.getX(), predictedR1.getY(), mass), particles);
 
-        final Pair deltaR2 = acceleration.substract(predictedR2).multiplyByScalar(dt * dt * 1/2);
+        final Pair deltaR2 = acceleration.multiplyByScalar(1/mass).substract(predictedR2).multiplyByScalar(dt * dt * 1/2);
 
         final Pair correctedR = predictedR.sum(ALPHA[0][alphaIndex] * deltaR2.getX(), ALPHA[0][alphaIndex] * deltaR2.getY());
-        final Pair correctedR1 = predictedR1.sum(ALPHA[1][alphaIndex] * deltaR2.getX(), ALPHA[1][alphaIndex] * deltaR2.getY() * 1 / dt);
+        final Pair correctedR1 = predictedR1.sum(ALPHA[1][alphaIndex] * deltaR2.getX() / dt, ALPHA[1][alphaIndex] * deltaR2.getY() / dt);
 
         particle.setPosition(correctedR);
         particle.setVelocity(correctedR1);
