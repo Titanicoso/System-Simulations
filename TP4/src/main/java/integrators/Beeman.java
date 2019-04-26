@@ -12,13 +12,13 @@ public class Beeman {
                            final List<Particle> particles, final Force force, Pair[] previous) {
 
         if(previous == null) {
-            previous = calculateEuler(particle, -dt, particles, force);
+            previous = calculateEuler(particle, -dt, force);
         }
 
-        final Pair initialForce = force.getForce(particle, particles);
+        final Pair initialForce = force.getForce(particle);
         final double mass = particle.getMass();
         final Pair previousForce = force.getForce(new Particle(particle.getId(), previous[0].getX(),
-                previous[0].getY(), previous[1].getX(), previous[1].getY(), mass), particles);
+                previous[0].getY(), previous[1].getX(), previous[1].getY(), mass));
         final Pair initialVelocity = particle.getVelocity();
 
         final Pair newPosition = new Pair(initialForce)
@@ -34,10 +34,10 @@ public class Beeman {
                      .sum(initialVelocity)
                      .substract(new Pair(previousForce).multiplyByScalar(dt / (2 * mass)));
         	 newForce = force.getForce(new Particle(particle.getId(), newPosition.getX(),
-        			 newPosition.getY(), intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles);
+        			 newPosition.getY(), intermediateVelocity.getX(), intermediateVelocity.getY(), mass));
         } else {
           	 newForce = force.getForce(new Particle(particle.getId(), newPosition.getX(),
-        			 newPosition.getY(), initialVelocity.getX(), initialVelocity.getY(), mass), particles);
+        			 newPosition.getY(), initialVelocity.getX(), initialVelocity.getY(), mass));
         }
 
         final Pair newVelocity = initialForce
@@ -53,9 +53,9 @@ public class Beeman {
     }
 
     private Pair[] calculateEuler(final Particle particle, final double dt,
-                                 final List<Particle> particles, final Force force) {
+                                  final Force force) {
 
-        final Pair initialForce = force.getForce(particle, particles);
+        final Pair initialForce = force.getForce(particle);
         final double mass = particle.getMass();
 
         final Pair newVelocity = new Pair(initialForce)

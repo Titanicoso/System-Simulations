@@ -22,6 +22,13 @@ public class Particle {
 		return Math.hypot(getVx(), getVy());
 	}
 	
+	public double distance(final Particle particle) {
+		return Math.hypot(
+				(particle.getX() - this.getX()),
+				(particle.getY() - this.getY())
+		);
+	}
+	
 	public int getId() {
 		return id;
 	}

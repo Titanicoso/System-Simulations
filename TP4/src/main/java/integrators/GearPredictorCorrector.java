@@ -20,10 +20,10 @@ public class GearPredictorCorrector {
         final double mass = particle.getMass();
         final Pair r = new Pair(particle.getPosition());
         final Pair r1 = new Pair(particle.getVelocity());
-        final Pair r2 = force.getForce(particle, particles).multiplyByScalar(1/mass);
-        final Pair r3 = force.getD1(particle, particles).multiplyByScalar(1/mass);
-        final Pair r4 = force.getD2(particle, particles).multiplyByScalar(1/mass);
-        final Pair r5 = force.getD3(particle, particles).multiplyByScalar(1/mass);
+        final Pair r2 = force.getForce(particle).multiplyByScalar(1/mass);
+        final Pair r3 = force.getD1(particle).multiplyByScalar(1/mass);
+        final Pair r4 = force.getD2(particle).multiplyByScalar(1/mass);
+        final Pair r5 = force.getD3(particle).multiplyByScalar(1/mass);
 
         final Pair predictedR = new Pair(r)
                 .sum(r1.getX() * dt, r1.getY() * dt)
@@ -44,7 +44,7 @@ public class GearPredictorCorrector {
                 .sum(r5.getX() * (Math.pow(dt, 3) / 6), r3.getY() * (Math.pow(dt, 3) / 6));
 
         final Pair acceleration = force.getForce(new Particle(particle.getId(), predictedR.getX(), predictedR.getY(),
-                predictedR1.getX(), predictedR1.getY(), mass), particles);
+                predictedR1.getX(), predictedR1.getY(), mass));
 
         final Pair deltaR2 = acceleration.multiplyByScalar(1/mass).substract(predictedR2).multiplyByScalar(dt * dt * 1/2);
 

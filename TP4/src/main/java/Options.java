@@ -13,6 +13,9 @@ public class Options {
 	@Option(name = "-H", usage = "Dimension height.")
 	private Double height = 200.0;
 	
+	@Option(name = "-M", usage = "Particle mass.")
+	private Double mass = 0.1;
+	
 	@Option(name = "-DT", usage = "Integration Step.")
     private Double dt = 1.0;
 	
@@ -37,6 +40,10 @@ public class Options {
 
 	public Double getHeight() {
 		return height;
+	}
+
+	public Double getMass() {
+		return mass;
 	}
 
 	public Double getDt() {

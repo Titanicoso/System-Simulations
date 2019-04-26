@@ -29,7 +29,7 @@ public class Simulation {
 		GearPredictorCorrector gpc = new GearPredictorCorrector();
 		VelocityVerlet vv = new VelocityVerlet();
 		Force f = new DampedOscillator();
-		double dt = 0.000001;
+		double dt = 0.00001;
 		double e1 = 0;
 		double e2 = 0;
 		double e3 = 0;

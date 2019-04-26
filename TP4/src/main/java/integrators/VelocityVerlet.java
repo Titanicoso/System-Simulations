@@ -11,7 +11,7 @@ public class VelocityVerlet {
     public Particle evolve(final Particle particle, final double dt,
                            final List<Particle> particles, final Force force) {
 
-        final Pair initialForce = force.getForce(particle, particles);
+        final Pair initialForce = force.getForce(particle);
         final Pair initialVelocity = particle.getVelocity();
         final double mass = particle.getMass();
 
@@ -25,7 +25,7 @@ public class VelocityVerlet {
                 .sum(particle.getVelocity());
 
         final Pair newForce = force.getForce(new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
-                intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles);
+                intermediateVelocity.getX(), intermediateVelocity.getY(), mass));
 
         final Pair newVelocity = intermediateVelocity.sum(newForce.multiplyByScalar(dt / (2 * mass)));
 
