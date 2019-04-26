@@ -29,13 +29,13 @@ public class Simulation {
 		GearPredictorCorrector gpc = new GearPredictorCorrector();
 		VelocityVerlet vv = new VelocityVerlet();
 		Force f = new DampedOscillator();
-		double dt = 0.00001;
+		double dt = 0.0001;
 		double e1 = 0;
 		double e2 = 0;
 		double e3 = 0;
 		double t = 0;
 		Pair[] previous = null;
-		while(t < 5) {
+		while(Math.abs(f.getAnalyticalSolution(particle, t).getX() - f.getAnalyticalSolution(particle, t + dt).getX()) > 1E-20) {
 			t += dt;
 			Pair p1 = f.getAnalyticalSolution(particle, t);
 			Pair p2 = beeman.evolve(particle1, dt, null, f, previous).getPosition();
@@ -46,6 +46,7 @@ public class Simulation {
 			e3 += Math.pow(p1.getX() - p4.getX(), 2);
 			previous = new Pair[] { p2, particle1.getVelocity() };
 		}
+		System.out.println(t);
 		System.out.println(e1/(t/dt));
 		System.out.println(e2/(t/dt));
 		System.out.println(e3/(t/dt));
