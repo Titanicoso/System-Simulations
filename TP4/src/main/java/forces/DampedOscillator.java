@@ -17,6 +17,11 @@ public class DampedOscillator implements Force {
 	public void calculate(List<Particle> particles) { }
 
     @Override
+    public Pair recalculateForce(Particle particle, List<Particle> particles) {
+	    return getForce(particle);
+    }
+
+    @Override
     public Pair getForce(final Particle particle) {
         final double x = -K * particle.getX() - GAMMA * particle.getVx();
         return new Pair(x, 0);

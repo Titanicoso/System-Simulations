@@ -15,19 +15,25 @@ public class VelocityVerlet {
         final Pair initialVelocity = particle.getVelocity();
         final double mass = particle.getMass();
 
-        final Pair newPosition = new Pair(initialForce)
-                .multiplyByScalar(dt * dt / mass)
-                .sum(particle.getPosition())
-                .sum(initialVelocity.getX() * dt, initialVelocity.getY() * dt);
+        final Pair newPosition = new Pair(
+                initialForce.getX() * dt * dt / mass + particle.getX() + initialVelocity.getX() * dt,
+                initialForce.getY() * dt * dt / mass + particle.getY() + initialVelocity.getY() * dt
+        );
 
-        final Pair intermediateVelocity = initialForce
-                .multiplyByScalar(dt / (2 * mass))
-                .sum(particle.getVelocity());
+        final Pair intermediateVelocity = new Pair(
+                initialForce.getX() * dt / (2 * mass) + initialVelocity.getX(),
+                initialForce.getY() * dt / (2 * mass) + initialVelocity.getY()
+        );
 
-        final Pair newForce = force.getForce(new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
-                intermediateVelocity.getX(), intermediateVelocity.getY(), mass));
+        final Pair newForce = force.recalculateForce(
+                new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
+                intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles
+        );
 
-        final Pair newVelocity = intermediateVelocity.sum(newForce.multiplyByScalar(dt / (2 * mass)));
+        final Pair newVelocity = new Pair(
+                intermediateVelocity.getX() + newForce.getX() * dt / (2 * mass),
+                intermediateVelocity.getY() + newForce.getY() * dt / (2 * mass)
+        );
 
         particle.setPosition(newPosition);
         particle.setVelocity(newVelocity);

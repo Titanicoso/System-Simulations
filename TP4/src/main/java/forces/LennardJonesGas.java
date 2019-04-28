@@ -65,6 +65,44 @@ public class LennardJonesGas implements Force {
     }
     
 	@Override
+	public Pair recalculateForce(Particle particle, List<Particle> particles) {
+		final BundleOfJoy boj = new BundleOfJoy();
+
+		for (int i = 0; i < particles.size(); i++) {
+			if (i != particle.getId()) {
+				Particle p = particles.get(i);
+
+				if (particle.distance(p) <= R) {
+					double dx = (particle.getX() - p.getX());
+					double dy = (particle.getY() - p.getY());
+					Pair force = new Pair(
+							12 * E / RM * (Math.pow(RM / dx, 13) - Math.pow(RM / dx, 7)),
+							12 * E / RM * (Math.pow(RM / dy, 13) - Math.pow(RM / dy, 7))
+					);
+//					Pair d1 = new Pair(
+//							12 * E * Math.pow(RM, 6) * (7 * Math.pow(dx, 6) - 13 * Math.pow(RM, 6) / Math.pow(dx, 14)),
+//							12 * E * Math.pow(RM, 6) * (7 * Math.pow(dy, 6) - 13 * Math.pow(RM, 6) / Math.pow(dy, 14))
+//					);
+//					Pair d2 = new Pair(
+//							168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dx, 6) + 13 * Math.pow(RM, 6) / Math.pow(dx, 15)),
+//							168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dy, 6) + 13 * Math.pow(RM, 6) / Math.pow(dy, 15))
+//					);
+//					Pair d3 = new Pair(
+//							-504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dx, 6) + 65 * Math.pow(RM, 6) / Math.pow(dx, 16)),
+//							-504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dy, 6) + 65 * Math.pow(RM, 6) / Math.pow(dy, 16))
+//					);
+					boj.force.sum(force);
+//					boj.d1.sum(d1);
+//					boj.d2.sum(d2);
+//					boj.d3.sum(d3);
+				}
+			}
+		}
+
+		return boj.force;
+	}
+    
+	@Override
 	public Pair getForce(Particle particle) {
 		return new Pair(bundlesOfJoy.get(particle.getId()).force);
 	}
@@ -100,7 +138,7 @@ public class LennardJonesGas implements Force {
 		Pair d2;
 		Pair d3;
 		
-		public BundleOfJoy() {
+		BundleOfJoy() {
 			this.force = new Pair(0, 0);
 			this.d1 = new Pair(0, 0);
 			this.d2 = new Pair(0, 0);

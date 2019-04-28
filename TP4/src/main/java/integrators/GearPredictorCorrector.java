@@ -18,38 +18,55 @@ public class GearPredictorCorrector {
         final int alphaIndex = force.isVelocityDependant() ? 1 : 0;
 
         final double mass = particle.getMass();
-        final Pair r = new Pair(particle.getPosition());
-        final Pair r1 = new Pair(particle.getVelocity());
+        final Pair r = particle.getPosition();
+        final Pair r1 = particle.getVelocity();
         final Pair r2 = force.getForce(particle).multiplyByScalar(1/mass);
         final Pair r3 = force.getD1(particle).multiplyByScalar(1/mass);
         final Pair r4 = force.getD2(particle).multiplyByScalar(1/mass);
         final Pair r5 = force.getD3(particle).multiplyByScalar(1/mass);
 
-        final Pair predictedR = new Pair(r)
-                .sum(r1.getX() * dt, r1.getY() * dt)
-                .sum(r2.getX() * (Math.pow(dt, 2) / 2), r2.getY() * (Math.pow(dt, 2) / 2))
-                .sum(r3.getX() * (Math.pow(dt, 3) / 6), r3.getY() * (Math.pow(dt, 3) / 6))
-                .sum(r4.getX() * (Math.pow(dt, 4) / 24), r4.getY() * (Math.pow(dt, 4) / 24))
-                .sum(r5.getX() * (Math.pow(dt, 5) / 125), r5.getY() * (Math.pow(dt, 5) / 125));
+        final Pair predictedR = new Pair(
+                r.getX() + r1.getX() * dt + r2.getX() * (Math.pow(dt, 2) / 2) +
+                        r3.getX() * (Math.pow(dt, 3) / 6) + r4.getX() * (Math.pow(dt, 4) / 24) +
+                        r5.getX() * (Math.pow(dt, 5) / 120),
+                r.getY() + r1.getY() * dt + r2.getY() * (Math.pow(dt, 2) / 2) +
+                        r3.getY() * (Math.pow(dt, 3) / 6) + r4.getY() * (Math.pow(dt, 4) / 24) +
+                        r5.getY() * (Math.pow(dt, 5) / 120)
+        );
 
-        final Pair predictedR1 = new Pair(r1)
-                .sum(r2.getX() * dt, r1.getY() * dt)
-                .sum(r3.getX() * (Math.pow(dt, 2) / 2), r2.getY() * (Math.pow(dt, 2) / 2))
-                .sum(r4.getX() * (Math.pow(dt, 3) / 6), r3.getY() * (Math.pow(dt, 3) / 6))
-                .sum(r5.getX() * (Math.pow(dt, 4) / 24), r4.getY() * (Math.pow(dt, 4) / 24));
+        final Pair predictedR1 = new Pair(
+                r1.getX() + r2.getX() * dt + r3.getX() * (Math.pow(dt, 2) / 2) +
+                        r4.getX() * (Math.pow(dt, 3) / 6) + r5.getX() * (Math.pow(dt, 4) / 24),
+                r1.getY() + r2.getY() * dt + r3.getY() * (Math.pow(dt, 2) / 2) +
+                        r4.getY() * (Math.pow(dt, 3) / 6) + r5.getY() * (Math.pow(dt, 4) / 24)
+        );
 
-        final Pair predictedR2 = new Pair(r2)
-                .sum(r3.getX() * dt, r1.getY() * dt)
-                .sum(r4.getX() * (Math.pow(dt, 2) / 2), r2.getY() * (Math.pow(dt, 2) / 2))
-                .sum(r5.getX() * (Math.pow(dt, 3) / 6), r3.getY() * (Math.pow(dt, 3) / 6));
+        final Pair predictedR2 = new Pair(
+                r2.getX() + r3.getX() * dt + r4.getX() * (Math.pow(dt, 2) / 2) +
+                        r5.getX() * (Math.pow(dt, 3) / 6),
+                r2.getY() + r3.getY() * dt + r4.getY() * (Math.pow(dt, 2) / 2) +
+                        r5.getY() * (Math.pow(dt, 3) / 6)
+        );
 
-        final Pair acceleration = force.getForce(new Particle(particle.getId(), predictedR.getX(), predictedR.getY(),
-                predictedR1.getX(), predictedR1.getY(), mass));
+        final Pair acceleration = force.recalculateForce(
+                new Particle(particle.getId(), predictedR.getX(), predictedR.getY(),
+                predictedR1.getX(), predictedR1.getY(), mass), particles
+        );
 
-        final Pair deltaR2 = acceleration.multiplyByScalar(1/mass).substract(predictedR2).multiplyByScalar(dt * dt * 1/2);
+        final Pair deltaR2 = new Pair(
+                (acceleration.getX() / mass - predictedR2.getX()) * dt * dt / 2,
+                (acceleration.getY() / mass - predictedR2.getY()) * dt * dt / 2
+        );
 
-        final Pair correctedR = predictedR.sum(ALPHA[0][alphaIndex] * deltaR2.getX(), ALPHA[0][alphaIndex] * deltaR2.getY());
-        final Pair correctedR1 = predictedR1.sum(ALPHA[1][alphaIndex] * deltaR2.getX() / dt, ALPHA[1][alphaIndex] * deltaR2.getY() / dt);
+        final Pair correctedR = new Pair(
+                predictedR.getX() + ALPHA[0][alphaIndex] * deltaR2.getX(),
+                predictedR.getY() + ALPHA[0][alphaIndex] * deltaR2.getY()
+        );
+
+        final Pair correctedR1 = new Pair(
+                predictedR1.getX() + ALPHA[1][alphaIndex] * deltaR2.getX() / dt,
+                predictedR1.getY() + ALPHA[1][alphaIndex] * deltaR2.getY() / dt
+        );
 
         particle.setPosition(correctedR);
         particle.setVelocity(correctedR1);

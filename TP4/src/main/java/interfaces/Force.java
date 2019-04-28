@@ -19,4 +19,6 @@ public interface Force {
     boolean isVelocityDependant();
 
 	void calculate(List<Particle> particles);
+
+	Pair recalculateForce(Particle particle, List<Particle> particles);
 }
