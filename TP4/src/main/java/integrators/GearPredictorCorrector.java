@@ -1,6 +1,7 @@
 package integrators;
 
 import interfaces.Force;
+import model.Area;
 import model.Pair;
 import model.Particle;
 
@@ -14,7 +15,7 @@ public class GearPredictorCorrector {
     };
 
     public Particle evolve(final Particle particle, final double dt,
-                           final List<Particle> particles, final Force force) {
+                           final List<Particle> particles, final Force force , Area area) {
         final int alphaIndex = force.isVelocityDependant() ? 1 : 0;
 
         final double mass = particle.getMass();
@@ -50,7 +51,7 @@ public class GearPredictorCorrector {
 
         final Pair acceleration = force.recalculateForce(
                 new Particle(particle.getId(), predictedR.getX(), predictedR.getY(),
-                predictedR1.getX(), predictedR1.getY(), mass), particles
+                predictedR1.getX(), predictedR1.getY(), mass), particles, area
         );
 
         final Pair deltaR2 = new Pair(

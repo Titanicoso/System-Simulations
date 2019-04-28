@@ -35,12 +35,13 @@ public class Simulation {
 		double e3 = 0;
 		double t = 0;
 		Pair[] previous = null;
+		Area area = new Area(options.getLength(), options.getHeight(), 10, new ArrayList<>());
 		while(Math.abs(f.getAnalyticalSolution(particle, t).getX() - f.getAnalyticalSolution(particle, t + dt).getX()) > 1E-20) {
 			t += dt;
 			Pair p1 = f.getAnalyticalSolution(particle, t);
-			Pair p2 = beeman.evolve(particle1, dt, null, f, previous).getPosition();
-			Pair p3 = gpc.evolve(particle2, dt, null, f).getPosition();
-			Pair p4 = vv.evolve(particle3, dt, null, f).getPosition();
+			Pair p2 = beeman.evolve(particle1, dt, null, f, previous, area).getPosition();
+			Pair p3 = gpc.evolve(particle2, dt, null, f, area).getPosition();
+			Pair p4 = vv.evolve(particle3, dt, null, f, area).getPosition();
 			e1 += Math.pow(p1.getX() - p2.getX(), 2);
 			e2 += Math.pow(p1.getX() - p3.getX(), 2);
 			e3 += Math.pow(p1.getX() - p4.getX(), 2);

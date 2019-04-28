@@ -7,8 +7,8 @@ public class Options {
 	@Option(name = "-N", usage = "Initial particles.")
     private Integer n = 100;
 	
-	@Option(name = "-L", usage = "Dimension length.")
-    private Double length = 400.0;
+	@Option(name = "-L", usage = "Each box length.")
+    private Double length = 200.0;
 
 	@Option(name = "-H", usage = "Dimension height.")
 	private Double height = 200.0;

@@ -1,6 +1,7 @@
 package integrators;
 
 import interfaces.Force;
+import model.Area;
 import model.Pair;
 import model.Particle;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public class Beeman {
 
     public Particle evolve(final Particle particle, final double dt,
-                           final List<Particle> particles, final Force force, Pair[] previous) {
+                           final List<Particle> particles, final Force force, Pair[] previous, Area area) {
 
         if(previous == null) {
             previous = calculateEuler(particle, -dt, force);
@@ -20,7 +21,7 @@ public class Beeman {
 
         final Pair previousForce = force.recalculateForce(
                 new Particle(particle.getId(), previous[0].getX(),
-                previous[0].getY(), previous[1].getX(), previous[1].getY(), mass), particles
+                previous[0].getY(), previous[1].getX(), previous[1].getY(), mass), particles, area
         );
 
         final Pair initialVelocity = particle.getVelocity();
@@ -44,12 +45,12 @@ public class Beeman {
 
         	 newForce = force.recalculateForce(
         	         new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
-                             intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles
+                             intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles, area
              );
         } else {
           	 newForce = force.recalculateForce(
           	         new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
-                             initialVelocity.getX(), initialVelocity.getY(), mass), particles
+                             initialVelocity.getX(), initialVelocity.getY(), mass), particles, area
              );
         }
 

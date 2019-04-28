@@ -2,6 +2,7 @@ package interfaces;
 
 import java.util.List;
 
+import model.Area;
 import model.Pair;
 import model.Particle;
 
@@ -18,7 +19,7 @@ public interface Force {
 
     boolean isVelocityDependant();
 
-	void calculate(List<Particle> particles);
+	void calculate(List<Particle> particles, Area area);
 
-	Pair recalculateForce(Particle particle, List<Particle> particles);
+	Pair recalculateForce(Particle particle, List<Particle> particles, Area area);
 }

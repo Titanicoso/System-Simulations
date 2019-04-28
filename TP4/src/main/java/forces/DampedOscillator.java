@@ -3,6 +3,7 @@ package forces;
 import java.util.List;
 
 import interfaces.Force;
+import model.Area;
 import model.Pair;
 import model.Particle;
 
@@ -14,10 +15,10 @@ public class DampedOscillator implements Force {
     private static final boolean velocityDependant = true;
     
 	@Override
-	public void calculate(List<Particle> particles) { }
+	public void calculate(List<Particle> particles, Area area) { }
 
     @Override
-    public Pair recalculateForce(Particle particle, List<Particle> particles) {
+    public Pair recalculateForce(Particle particle, List<Particle> particles, Area area) {
 	    return getForce(particle);
     }
 

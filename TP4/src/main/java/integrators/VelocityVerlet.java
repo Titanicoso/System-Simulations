@@ -1,6 +1,7 @@
 package integrators;
 
 import interfaces.Force;
+import model.Area;
 import model.Pair;
 import model.Particle;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public class VelocityVerlet {
 
     public Particle evolve(final Particle particle, final double dt,
-                           final List<Particle> particles, final Force force) {
+                           final List<Particle> particles, final Force force, Area area) {
 
         final Pair initialForce = force.getForce(particle);
         final Pair initialVelocity = particle.getVelocity();
@@ -27,7 +28,7 @@ public class VelocityVerlet {
 
         final Pair newForce = force.recalculateForce(
                 new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
-                intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles
+                intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles, area
         );
 
         final Pair newVelocity = new Pair(

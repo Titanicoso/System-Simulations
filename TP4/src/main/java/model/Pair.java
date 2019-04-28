@@ -47,6 +47,10 @@ public class Pair {
         return this;
     }
 
+    public double distance(Pair other) {
+        return Math.hypot(other.getX() - x, other.getY() - y);
+    }
+
 	@Override
 	public String toString() {
 		return "Pair [x=" + x + ", y=" + y + "]";
