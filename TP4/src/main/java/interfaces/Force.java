@@ -22,4 +22,6 @@ public interface Force {
 	void calculate(List<Particle> particles, Area area);
 
 	Pair recalculateForce(Particle particle, List<Particle> particles, Area area);
+
+    double getPotentialEnergy(Particle particle);
 }

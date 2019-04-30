@@ -9,6 +9,7 @@ public class CellIndexMethod {
     private final double interactionRadius;
     private List<List<Particle>> grid;
     private final int m;
+    private final double cellLength;
 
     public CellIndexMethod(double interactionRadius, Area area) {
         this.interactionRadius = interactionRadius;
@@ -17,15 +18,11 @@ public class CellIndexMethod {
         for(int i = 0; i < 2 * m * m; i++) {
             grid.add(new ArrayList<>());
         }
+        this.cellLength = area.getLength() / m;
+        populateGrid(area);
     }
 
     private void populateGrid(final Area area) {
-
-        for(int i = 0; i < 2 * m * m; i++) {
-            grid.get(i).clear();
-        }
-
-        final double cellLength = area.getLength() / m;
 
         for (final Particle particle: area.getParticles()) {
             final int cellX = (int) Math.floor(particle.getX() / cellLength);
@@ -34,6 +31,19 @@ public class CellIndexMethod {
             grid.get(cellX + cellY * 2 * m).add(particle);
         }
     }
+
+//    public void updateGrid(final Particle previous, final Particle predicted) {
+//        int cellX = (int) Math.floor(previous.getX() / cellLength);
+//        int cellY = (int) Math.floor(previous.getY() / cellLength);
+//
+//        int predictedCellX = (int) Math.floor(predicted.getX() / cellLength);
+//        int predictedCellY = (int) Math.floor(predicted.getY() / cellLength);
+//
+//        if(cellX != predictedCellX || predictedCellY != cellY) {
+//            grid.get(cellX + cellY * 2 * m).remove(previous);
+//            grid.get(cellX + cellY * 2 * m).add(predicted);
+//        }
+//    }
 
     public Map<Integer, List<Particle>> findNeighbours(final Area area) {
         populateGrid(area);
@@ -101,6 +111,73 @@ public class CellIndexMethod {
                 }
             }
         }
+    }
+
+    private void findParticleNeighbours(final List<Particle> neighbours, Particle particle,
+                                        final List<Particle> cell, final Area area) {
+
+        for (final Particle particle2 : cell) {
+            if (particle.getId() != particle2.getId()) {
+                if (particle.distance(particle2) <= interactionRadius && area.forceInteraction(particle, particle2)) {
+                    neighbours.add(particle2);
+                }
+            }
+        }
+    }
+
+    public List<Particle> predictParticleNeighbours(final Particle particle, final Area area) {
+
+        final int cellX = (int) Math.floor(particle.getX() / cellLength);
+        final int cellY = (int) Math.floor(particle.getY() / cellLength);
+        final int cellI = cellX + cellY * 2 * m;
+
+        List<Particle> cell = grid.get(cellI);
+
+        List<Particle> neighbours = new ArrayList<>();
+
+        findParticleNeighbours(neighbours,  particle, cell, area);
+
+        int neighbour = getNeighbour(cellI, 0, 1);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, 1, 0);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, 1, 1);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, -1, 1);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, -1, 0);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, -1, -1);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, 0, -1);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        neighbour = getNeighbour(cellI, 1, -1);
+        if (neighbour != -1) {
+            findParticleNeighbours(neighbours, particle, grid.get(neighbour), area);
+        }
+
+        return neighbours;
     }
 
     private int findMaximumM(final Area area) {

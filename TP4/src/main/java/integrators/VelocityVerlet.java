@@ -38,10 +38,7 @@ public class VelocityVerlet implements Integrator {
                 intermediateVelocity.getY() + newForce.getY() * dt / (2 * mass)
         );
 
-        particle.setPosition(newPosition);
-        particle.setVelocity(newVelocity);
-
-        return particle;
+        return new Particle(particle.getId(), newPosition.getX(), newPosition.getY(), newVelocity.getX(), newVelocity.getY(), mass);
     }
 
 

@@ -61,10 +61,7 @@ public class Beeman {
                         newForce.getY() * dt / (3 * mass) - previousForce.getY() * dt / (6 * mass)
         );
 
-        particle.setPosition(newPosition);
-        particle.setVelocity(newVelocity);
-
-        return particle;
+        return new Particle(particle.getId(), newPosition.getX(), newPosition.getY(), newVelocity.getX(), newVelocity.getY(), mass);
     }
 
     private Pair[] calculateEuler(final Particle particle, final double dt,

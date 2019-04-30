@@ -21,26 +21,29 @@ public class Simulation {
 	static boolean append = false;
 
 	public static void simulate(Options options) {
-		VelocityVerlet gpc = new VelocityVerlet();
-		double dt = 0.000001;
+		GearPredictorCorrector gpc = new GearPredictorCorrector();
+		double dt = 1e-4;
 		double t = 0;
 		int times = 0;
 		double fraction = 1;
 		Area area = generateParticles(options);
 		logParticles(area.getParticles());
 		Force f = new LennardJonesGas(area);
+		List<Particle> previous = area.getParticles();
 		while(fraction != 0.5) {
-			f.calculate(area.getParticles(), area);
+			List<Particle> predicted = new ArrayList<> ();
+			f.calculate(previous, area);
 			int leftParticles = 0;
-			for (Particle p: area.getParticles()) {
-				gpc.evolve(p, dt, area.getParticles(), f, area);
+			for (Particle p: previous) {
+				predicted.add(gpc.evolve(p, dt, previous, f, area));
 				if(area.leftBox(p)) {
 					leftParticles++;
 				}
 			}
-			fraction = (float)leftParticles/area.getParticles().size();
+			previous = predicted;
+			fraction = (float)leftParticles/predicted.size();
 			times++;
-			if(times == 10) {
+			if(times == 100) {
 				logParticles(area.getParticles());
 				times = 0;
 			}
@@ -67,13 +70,13 @@ public class Simulation {
 		while(t < 5) {
 			t += dt;
 			Pair p1 = f.getAnalyticalSolution(particle, t);
-			Pair p2 = beeman.evolve(particle1, dt, null, f, previous, area).getPosition();
-			Pair p3 = gpc.evolve(particle2, dt, null, f, area).getPosition();
-			Pair p4 = vv.evolve(particle3, dt, null, f, area).getPosition();
-			e1 += Math.pow(p1.getX() - p2.getX(), 2);
-			e2 += Math.pow(p1.getX() - p3.getX(), 2);
-			e3 += Math.pow(p1.getX() - p4.getX(), 2);
-			previous = new Pair[] { p2, particle1.getVelocity() };
+			particle1 = beeman.evolve(particle1, dt, null, f, previous, area);
+			particle2 = gpc.evolve(particle2, dt, null, f, area);
+			particle3 = vv.evolve(particle3, dt, null, f, area);
+			e1 += Math.pow(p1.getX() - particle1.getX(), 2);
+			e2 += Math.pow(p1.getX() - particle2.getX(), 2);
+			e3 += Math.pow(p1.getX() - particle3.getX(), 2);
+			previous = new Pair[] { particle1.getPosition(), particle1.getVelocity() };
 		}
 		System.out.println(t);
 		System.out.println(e1/(t/dt));
@@ -129,7 +132,8 @@ public class Simulation {
 	private static double calculateEnergy(final List<Particle> particles, final Force force) {
 
 		return particles.stream()
-				.mapToDouble(particle -> 0.5 * (particle.getMass()) * (Math.pow(particle.getVx(), 2) + Math.pow(particle.getVy(), 2)))
+				.mapToDouble(particle -> 0.5 * (particle.getMass()) * (Math.pow(particle.getVx(), 2)
+						+ Math.pow(particle.getVy(), 2)) + force.getPotentialEnergy(particle))
 				.average().orElse(0);
 	}
 

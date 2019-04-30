@@ -69,8 +69,13 @@ public class Area {
 		} else {
 			wallPositions.add(new Pair(x, height));
 			wallPositions.add(new Pair(x, 0));
-			wallPositions.add(new Pair(0, y));
-			wallPositions.add(new Pair(length, y));
+			if(x < length) {
+				wallPositions.add(new Pair(0, y));
+				wallPositions.add(new Pair(length, y));
+			} else {
+				wallPositions.add(new Pair(2 * length, y));
+				wallPositions.add(new Pair(length, y));
+			}
 		}
 
 		return wallPositions;

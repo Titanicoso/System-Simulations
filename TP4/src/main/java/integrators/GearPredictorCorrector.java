@@ -71,9 +71,6 @@ public class GearPredictorCorrector implements Integrator {
                 predictedR1.getY() + ALPHA[1][alphaIndex] * deltaR2.getY() / dt
         );
 
-        particle.setPosition(correctedR);
-        particle.setVelocity(correctedR1);
-
-        return particle;
+        return new Particle(particle.getId(), correctedR.getX(), correctedR.getY(), correctedR1.getX(), correctedR1.getY(), mass);
     }
 }

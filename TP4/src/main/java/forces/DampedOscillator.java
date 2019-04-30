@@ -62,4 +62,9 @@ public class DampedOscillator implements Force {
         return velocityDependant;
     }
 
+    @Override
+    public double getPotentialEnergy(Particle particle) {
+        return 0;
+    }
+
 }
