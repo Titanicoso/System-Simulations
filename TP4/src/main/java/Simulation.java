@@ -21,7 +21,7 @@ public class Simulation {
 	static boolean append = false;
 
 	public static void simulate(Options options) {
-		GearPredictorCorrector gpc = new GearPredictorCorrector();
+		VelocityVerlet gpc = new VelocityVerlet();
 		double dt = 0.000001;
 		double t = 0;
 		int times = 0;
@@ -40,7 +40,7 @@ public class Simulation {
 			}
 			fraction = (float)leftParticles/area.getParticles().size();
 			times++;
-			if(times == 1000) {
+			if(times == 10) {
 				logParticles(area.getParticles());
 				times = 0;
 			}
@@ -144,13 +144,13 @@ public class Simulation {
 			double mod = rand(0, options.getVelocity());
 			double vx = mod * Math.cos(ang);
 			double vy = mod * Math.sin(ang);
-			double x = rand(1, options.getLength() - 1);
-			double y = rand(1, options.getHeight() - 1);
+			double x = rand(5, options.getLength() - 5);
+			double y = rand(5, options.getHeight() - 5);
 
 			Particle particle = new Particle(i, x, y, vx, vy, options.getMass());
 			overlapped = false;
 			for (Particle p : particles) {
-				if (particle.isOverlapped(p) && particle.distance(p) > 1) {
+				if (particle.isOverlapped(p) || particle.distance(p) < 5) {
 					overlapped = true;
 					break;
 				}
