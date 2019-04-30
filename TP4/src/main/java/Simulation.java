@@ -22,13 +22,13 @@ public class Simulation {
 
 	public static void simulate(Options options) {
 		GearPredictorCorrector gpc = new GearPredictorCorrector();
-		Force f = new LennardJonesGas();
-		double dt = 0.0001;
+		double dt = 0.000001;
 		double t = 0;
 		int times = 0;
 		double fraction = 1;
 		Area area = generateParticles(options);
 		logParticles(area.getParticles());
+		Force f = new LennardJonesGas(area);
 		while(fraction != 0.5) {
 			f.calculate(area.getParticles(), area);
 			int leftParticles = 0;
@@ -40,7 +40,7 @@ public class Simulation {
 			}
 			fraction = (float)leftParticles/area.getParticles().size();
 			times++;
-			if(times == 1/dt) {
+			if(times == 1000) {
 				logParticles(area.getParticles());
 				times = 0;
 			}
@@ -81,6 +81,31 @@ public class Simulation {
 		System.out.println(e3/(t/dt));
 	}
 
+	private static void logVelocityModules(List<Particle> particles, double time) {
+		File file = new File("velocity_modules.data");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, append);
+		} catch (FileNotFoundException e) {
+			return;
+		}
+
+		PrintStream ps = new PrintStream(fos);
+
+		if(!append) {
+			ps.println(particles.size());
+		}
+
+		ps.println(time);
+		for (Particle particle: particles) {
+			ps.println(particle.getVelocityModule());
+		}
+
+		ps.println();
+
+		ps.close();
+	}
+
 	private static void logParticles(List<Particle> particles) {
 		File file = new File("output.xyz");
 		FileOutputStream fos = null;
@@ -93,12 +118,19 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println();
+		ps.println("Lattice=\"400.0 0.0 0.0 0.0 200.0 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
 			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy());
 		}
 
 		ps.close();
+	}
+
+	private static double calculateEnergy(final List<Particle> particles, final Force force) {
+
+		return particles.stream()
+				.mapToDouble(particle -> 0.5 * (particle.getMass()) * (Math.pow(particle.getVx(), 2) + Math.pow(particle.getVy(), 2)))
+				.average().orElse(0);
 	}
 
 	public static Area generateParticles(Options options) {
@@ -112,13 +144,13 @@ public class Simulation {
 			double mod = rand(0, options.getVelocity());
 			double vx = mod * Math.cos(ang);
 			double vy = mod * Math.sin(ang);
-			double x = rand(0, options.getLength());
-			double y = rand(0, options.getHeight());
+			double x = rand(1, options.getLength() - 1);
+			double y = rand(1, options.getHeight() - 1);
 
 			Particle particle = new Particle(i, x, y, vx, vy, options.getMass());
 			overlapped = false;
 			for (Particle p : particles) {
-				if (particle.isOverlapped(p)) {
+				if (particle.isOverlapped(p) && particle.distance(p) > 1) {
 					overlapped = true;
 					break;
 				}

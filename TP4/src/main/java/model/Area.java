@@ -79,4 +79,25 @@ public class Area {
 	public boolean leftBox(Particle particle) {
 		return particle.getX() < length;
 	}
+
+	private boolean holeInteraction(Particle p, Particle o) {
+		final double holeStart = height / 2 - holeLength / 2;
+		final double holeEnd = height / 2 + holeLength / 2;
+		final double slope = (o.getY() - p.getY()) / (o.getX() - p.getX());
+		final double wallDistance = length - p.getX();
+
+		final double wallPoint = slope * wallDistance + p.getY();
+
+		return wallPoint >= holeStart && wallPoint <= holeEnd;
+	}
+
+	public boolean forceInteraction(Particle p, Particle o) {
+		final double holeStart = height / 2 - holeLength / 2;
+		final double holeEnd = height / 2 + holeLength / 2;
+		if(p.getX() < length && o.getX() < length)
+			return true;
+		else if(p.getX() > length && o.getX() > length)
+			return true;
+		else return holeInteraction(p, o);
+	}
 }
