@@ -12,6 +12,12 @@ public class Options {
 
 	@Option(name = "-H", usage = "Dimension height.")
 	private Double height = 200.0;
+
+	@Option(name = "-V", usage = "Velocity module.")
+	private Double velocity = 10.0;
+
+	@Option(name = "-HO", usage = "Hole size.")
+	private Double hole = 10.0;
 	
 	@Option(name = "-M", usage = "Particle mass.")
 	private Double mass = 0.1;
@@ -48,5 +54,13 @@ public class Options {
 
 	public Double getDt() {
 		return dt;
+	}
+
+	public Double getVelocity() {
+		return velocity;
+	}
+
+	public Double getHole() {
+		return hole;
 	}
 }

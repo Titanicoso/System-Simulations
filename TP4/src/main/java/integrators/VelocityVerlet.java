@@ -1,14 +1,16 @@
 package integrators;
 
 import interfaces.Force;
+import interfaces.Integrator;
 import model.Area;
 import model.Pair;
 import model.Particle;
 
 import java.util.List;
 
-public class VelocityVerlet {
+public class VelocityVerlet implements Integrator {
 
+    @Override
     public Particle evolve(final Particle particle, final double dt,
                            final List<Particle> particles, final Force force, Area area) {
 

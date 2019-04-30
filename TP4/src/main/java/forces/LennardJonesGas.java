@@ -33,33 +33,31 @@ public class LennardJonesGas implements Force {
     			Particle p2 = particles.get(j);
     			if (p1.distance(p2) <= R) {
     				double dx = (p1.getX() - p2.getX());
+    				double distance = p1.distance(p2);
     				double dy = (p1.getY() - p2.getY());
-    				Pair force = new Pair(
-    						12 * E / RM * (Math.pow(RM / dx, 13) - Math.pow(RM / dx, 7)),
-    						12 * E / RM * (Math.pow(RM / dy, 13) - Math.pow(RM / dy, 7))
-    				);
-    				Pair d1 = new Pair(
-    						12 * E * Math.pow(RM, 6) * (7 * Math.pow(dx, 6) - 13 * Math.pow(RM, 6) / Math.pow(dx, 14)),
-    						12 * E * Math.pow(RM, 6) * (7 * Math.pow(dy, 6) - 13 * Math.pow(RM, 6) / Math.pow(dy, 14))
-    				);
-    				Pair d2 = new Pair(
-    						168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dx, 6) + 13 * Math.pow(RM, 6) / Math.pow(dx, 15)),
-    						168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dy, 6) + 13 * Math.pow(RM, 6) / Math.pow(dy, 15))
-    				);
-    				Pair d3 = new Pair(
-    						-504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dx, 6) + 65 * Math.pow(RM, 6) / Math.pow(dx, 16)),
-    						-504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dy, 6) + 65 * Math.pow(RM, 6) / Math.pow(dy, 16))
-    				);
+
+    				double f = 12 * E / RM * (Math.pow(RM / distance, 13) - Math.pow(RM / distance, 7));
+    				Pair force = new Pair(f * dx/distance, f * dy/distance);
+
+    				double f1 = 12 * E * Math.pow(RM, 6) * (7 * Math.pow(distance, 6) - 13 * Math.pow(RM, 6)) / Math.pow(distance, 14);
+					Pair d1 = new Pair(f1 * dx/distance, f1 * dy/distance);
+
+					double f2 = 168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dx, 6) + 13 * Math.pow(RM, 6)) / Math.pow(dx, 15);
+					Pair d2 = new Pair(f2 * dx/distance, f2 * dy/distance);
+
+					double f3 = -504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dx, 6) + 65 * Math.pow(RM, 6)) / Math.pow(dx, 16);
+					Pair d3 = new Pair(f3 * dx/distance, f3 * dy/distance);
+
     				BundleOfJoy boj1 = bundlesOfJoy.get(i);
     				BundleOfJoy boj2 = bundlesOfJoy.get(j);
     				boj1.force.sum(force);
     				boj2.force.substract(force);
     				boj1.d1.sum(d1);
-    				boj2.d1.sum(d1);
+    				boj2.d1.substract(d1);
     				boj1.d2.sum(d2);
     				boj2.d2.substract(d2);
     				boj1.d3.sum(d3);
-    				boj2.d3.sum(d3);
+    				boj2.d3.substract(d3);
     			}
     		}
 			calculateWallInteractions(p1, area);
@@ -78,24 +76,22 @@ public class LennardJonesGas implements Force {
 
 		for (Pair wall: walls) {
 			if (wall.distance(particle.getPosition()) <= R) {
-				double dx = (particle.getX() - wall.getX());
-				double dy = (particle.getY() - wall.getY());
-				Pair force = new Pair(
-						12 * E / RM * (Math.pow(RM / dx, 13) - Math.pow(RM / dx, 7)),
-						12 * E / RM * (Math.pow(RM / dy, 13) - Math.pow(RM / dy, 7))
-				);
-				Pair d1 = new Pair(
-						12 * E * Math.pow(RM, 6) * (7 * Math.pow(dx, 6) - 13 * Math.pow(RM, 6) / Math.pow(dx, 14)),
-						12 * E * Math.pow(RM, 6) * (7 * Math.pow(dy, 6) - 13 * Math.pow(RM, 6) / Math.pow(dy, 14))
-				);
-				Pair d2 = new Pair(
-						168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dx, 6) + 13 * Math.pow(RM, 6) / Math.pow(dx, 15)),
-						168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dy, 6) + 13 * Math.pow(RM, 6) / Math.pow(dy, 15))
-				);
-				Pair d3 = new Pair(
-						-504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dx, 6) + 65 * Math.pow(RM, 6) / Math.pow(dx, 16)),
-						-504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dy, 6) + 65 * Math.pow(RM, 6) / Math.pow(dy, 16))
-				);
+				double dx = (particle.getX() - wall.getX()) * 2;
+				double dy = (particle.getY() - wall.getY()) * 2;
+				double distance = wall.distance(particle.getPosition()) * 2;
+
+				double f = 12 * E / RM * (Math.pow(RM / distance, 13) - Math.pow(RM / distance, 7));
+				Pair force = new Pair(f * dx/distance, f * dy/distance);
+
+				double f1 = 12 * E * Math.pow(RM, 6) * (7 * Math.pow(distance, 6) - 13 * Math.pow(RM, 6)) / Math.pow(distance, 14);
+				Pair d1 = new Pair(f1 * dx/distance, f1 * dy/distance);
+
+				double f2 = 168 * E * Math.pow(RM, 6) * (-4 * Math.pow(dx, 6) + 13 * Math.pow(RM, 6)) / Math.pow(dx, 15);
+				Pair d2 = new Pair(f2 * dx/distance, f2 * dy/distance);
+
+				double f3 = -504 * E * Math.pow(RM, 6) * (-12 * Math.pow(dx, 6) + 65 * Math.pow(RM, 6)) / Math.pow(dx, 16);
+				Pair d3 = new Pair(f3 * dx/distance, f3 * dy/distance);
+
 				BundleOfJoy boj = bundlesOfJoy.get(particle.getId());
 				boj.force.sum(force);
 				boj.d1.sum(d1);
@@ -115,10 +111,11 @@ public class LennardJonesGas implements Force {
 				if (particle.distance(p) <= R) {
 					double dx = (particle.getX() - p.getX());
 					double dy = (particle.getY() - p.getY());
-					Pair force = new Pair(
-							12 * E / RM * (Math.pow(RM / dx, 13) - Math.pow(RM / dx, 7)),
-							12 * E / RM * (Math.pow(RM / dy, 13) - Math.pow(RM / dy, 7))
-					);
+					double distance = particle.distance(p);
+
+					double f = 12 * E / RM * (Math.pow(RM / distance, 13) - Math.pow(RM / distance, 7));
+					Pair force = new Pair(f * dx/distance, f * dy/distance);
+
 					forces.sum(force);
 				}
 			}
@@ -128,12 +125,13 @@ public class LennardJonesGas implements Force {
 
 		for (Pair wall: walls) {
 			if (particle.getPosition().distance(wall) <= R) {
-				double dx = (particle.getX() - wall.getX());
-				double dy = (particle.getY() - wall.getY());
-				Pair force = new Pair(
-						12 * E / RM * (Math.pow(RM / dx, 13) - Math.pow(RM / dx, 7)),
-						12 * E / RM * (Math.pow(RM / dy, 13) - Math.pow(RM / dy, 7))
-				);
+				double dx = (particle.getX() - wall.getX()) * 2;
+				double dy = (particle.getY() - wall.getY()) * 2;
+				double distance = wall.distance(particle.getPosition()) * 2;
+
+				double f = 12 * E / RM * (Math.pow(RM / distance, 13) - Math.pow(RM / distance, 7));
+				Pair force = new Pair(f * dx/distance, f * dy/distance);
+
 				forces.sum(force);
 			}
 		}

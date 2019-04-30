@@ -1,19 +1,21 @@
 package integrators;
 
 import interfaces.Force;
+import interfaces.Integrator;
 import model.Area;
 import model.Pair;
 import model.Particle;
 
 import java.util.List;
 
-public class GearPredictorCorrector {
+public class GearPredictorCorrector implements Integrator {
 
     private static double[][] ALPHA = {
             {3.0/20, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60},
             {3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60}
     };
 
+    @Override
     public Particle evolve(final Particle particle, final double dt,
                            final List<Particle> particles, final Force force , Area area) {
         final int alphaIndex = force.isVelocityDependant() ? 1 : 0;

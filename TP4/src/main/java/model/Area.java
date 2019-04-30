@@ -75,4 +75,8 @@ public class Area {
 
 		return wallPositions;
 	}
+
+	public boolean leftBox(Particle particle) {
+		return particle.getX() < length;
+	}
 }
