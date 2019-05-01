@@ -19,13 +19,12 @@ public class LennardJonesGas implements Force {
     private CellIndexMethod cim;
 
 	public LennardJonesGas(Area area) {
-		this.bundlesOfJoy = new HashMap<>();
 		cim = new CellIndexMethod(R, area);
 	}
 
 	@Override
 	public void calculate(List<Particle> particles, Area area) {
-		bundlesOfJoy.clear();
+		bundlesOfJoy = new HashMap<>();
 		final Map<Integer, List<Particle>> neighbours = cim.findNeighbours(area);
 
 		for (int i = 0; i < particles.size(); i++) {

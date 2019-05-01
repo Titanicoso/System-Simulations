@@ -19,23 +19,18 @@ public class VelocityVerlet implements Integrator {
         final double mass = particle.getMass();
 
         final Pair newPosition = new Pair(
-                initialForce.getX() * dt * dt / mass + particle.getX() + initialVelocity.getX() * dt,
-                initialForce.getY() * dt * dt / mass + particle.getY() + initialVelocity.getY() * dt
-        );
-
-        final Pair intermediateVelocity = new Pair(
-                initialForce.getX() * dt / (2 * mass) + initialVelocity.getX(),
-                initialForce.getY() * dt / (2 * mass) + initialVelocity.getY()
+                particle.getX() + dt * particle.getVx() + 0.5 * dt * dt * initialForce.getX() / mass,
+                particle.getY() + dt * particle.getVy() + 0.5 * dt * dt * initialForce.getY() / mass
         );
 
         final Pair newForce = force.recalculateForce(
                 new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
-                intermediateVelocity.getX(), intermediateVelocity.getY(), mass), particles, area
+                        initialVelocity.getX(), initialVelocity.getY(), mass), particles, area
         );
 
         final Pair newVelocity = new Pair(
-                intermediateVelocity.getX() + newForce.getX() * dt / (2 * mass),
-                intermediateVelocity.getY() + newForce.getY() * dt / (2 * mass)
+                particle.getVx() + 0.5 * dt * (newForce.getX() + initialForce.getX()) / mass,
+                particle.getVy() + 0.5 * dt * (newForce.getY() + initialForce.getY()) / mass
         );
 
         return new Particle(particle.getId(), newPosition.getX(), newPosition.getY(), newVelocity.getX(), newVelocity.getY(), mass);
