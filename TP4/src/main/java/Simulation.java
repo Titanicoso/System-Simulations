@@ -21,7 +21,7 @@ public class Simulation {
 	static boolean append = false;
 
 	public static void simulate(Options options) {
-		GearPredictorCorrector gpc = new GearPredictorCorrector();
+		VelocityVerlet gpc = new VelocityVerlet();
 		double dt = 1e-4;
 		double t = 0;
 		int times = 0;
@@ -30,9 +30,10 @@ public class Simulation {
 		logParticles(area.getParticles());
 		Force f = new LennardJonesGas(area);
 		List<Particle> previous = area.getParticles();
+		f.calculate(previous, area);
+		double initialEnergy = calculateEnergy(previous, f);
 		while(fraction != 0.5) {
 			List<Particle> predicted = new ArrayList<> ();
-			f.calculate(previous, area);
 			int leftParticles = 0;
 			for (Particle p: previous) {
 				predicted.add(gpc.evolve(p, dt, previous, f, area));
@@ -43,9 +44,17 @@ public class Simulation {
 			previous = predicted;
 			fraction = (float)leftParticles/predicted.size();
 			times++;
-			if(times == 100) {
-				logParticles(area.getParticles());
+			t += dt;
+			f.calculate(previous, area);
+			if(times == 10000) {
+				if(fraction != 1) {
+					System.out.println(leftParticles);
+				}
+				logParticles(previous);
 				times = 0;
+//				System.out.println(t);
+//				double energy = calculateEnergy(previous, f);
+//				System.out.println(initialEnergy - energy);
 			}
 		}
 		System.out.println(t);
@@ -53,6 +62,7 @@ public class Simulation {
 	
 	public static void simulate1(Options options) {
 		Particle particle = new Particle(0, 1.0, 0.0, -10.0/14, 0, 70);
+		Particle particle4 = new Particle(0, 1.0, 0.0, -10.0/14, 0, 70);
 		Particle particle1 = new Particle(0, 1.0, 0.0, -10.0/14, 0, 70);
 		Particle particle2 = new Particle(0, 1.0, 0.0, -10.0/14, 0, 70);
 		Particle particle3 = new Particle(0, 1.0, 0.0, -10.0/14, 0, 70);
@@ -66,17 +76,36 @@ public class Simulation {
 		double e3 = 0;
 		double t = 0;
 		Pair[] previous = null;
+		int times = 0;
 		Area area = new Area(options.getLength(), options.getHeight(), options.getHole(), new ArrayList<>());
+		List<Particle> particles = new ArrayList<>();
+		particles.add(particle4);
+		particles.add(particle1);
+		particles.add(particle2);
+		particles.add(particle3);
+		//logParticles(particles);
 		while(t < 5) {
+			List<Particle> predicted = new ArrayList<>();
 			t += dt;
 			Pair p1 = f.getAnalyticalSolution(particle, t);
+			particle4.setPosition(p1);
 			particle1 = beeman.evolve(particle1, dt, null, f, previous, area);
 			particle2 = gpc.evolve(particle2, dt, null, f, area);
 			particle3 = vv.evolve(particle3, dt, null, f, area);
+			predicted.add(particle1);
+			predicted.add(particle2);
+			predicted.add(particle3);
+			predicted.add(particle4);
 			e1 += Math.pow(p1.getX() - particle1.getX(), 2);
 			e2 += Math.pow(p1.getX() - particle2.getX(), 2);
 			e3 += Math.pow(p1.getX() - particle3.getX(), 2);
 			previous = new Pair[] { particle1.getPosition(), particle1.getVelocity() };
+			times++;
+			if(times == 0.1/dt) {
+				logParticles(predicted);
+				times = 0;
+				System.out.println(t);
+			}
 		}
 		System.out.println(t);
 		System.out.println(e1/(t/dt));
@@ -148,13 +177,13 @@ public class Simulation {
 			double mod = rand(0, options.getVelocity());
 			double vx = mod * Math.cos(ang);
 			double vy = mod * Math.sin(ang);
-			double x = rand(5, options.getLength() - 5);
-			double y = rand(5, options.getHeight() - 5);
+			double x = rand(1, options.getLength() - 1);
+			double y = rand(1, options.getHeight() - 1);
 
 			Particle particle = new Particle(i, x, y, vx, vy, options.getMass());
 			overlapped = false;
 			for (Particle p : particles) {
-				if (particle.isOverlapped(p) || particle.distance(p) < 5) {
+				if (particle.isOverlapped(p) || particle.distance(p) < 1) {
 					overlapped = true;
 					break;
 				}
