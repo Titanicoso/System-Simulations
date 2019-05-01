@@ -44,6 +44,7 @@ public class Simulation {
 				}
 			}
 			previous = predicted;
+			area.setParticles(predicted);
 			fraction = (float)leftParticles/predicted.size();
 			times++;
 			t += dt;
@@ -53,6 +54,7 @@ public class Simulation {
 				double energy = calculateEnergy(previous, f);
 				logData(previous, energy, t, leftParticles);
 				logParticles(previous);
+				System.out.println(leftParticles);
 				System.out.println(energy);
 			}
 		}
@@ -168,7 +170,7 @@ public class Simulation {
 
 		while(i != options.getN()) {
 			double ang = rand(0, 2 * Math.PI);
-			double mod = rand(0, options.getVelocity());
+			double mod = options.getVelocity();
 			double vx = mod * Math.cos(ang);
 			double vy = mod * Math.sin(ang);
 			double x = rand(1, options.getLength() - 1);
