@@ -181,7 +181,7 @@ public class LennardJonesGas implements Force {
 		List<Pair> walls = area.getWallPositions(particle);
 
 		for (Pair wall: walls) {
-			if (particle.getPosition().distance(wall) <= R) {
+			if (particle.getPosition().distance(wall) * 2 <= R) {
 				double dx = (particle.getX() - wall.getX()) * 2;
 				double dy = (particle.getY() - wall.getY()) * 2;
 				double distance = wall.distance(particle.getPosition()) * 2;
