@@ -19,9 +19,10 @@ import model.Particle;
 public class Simulation {
 
 	static boolean append = false;
+	static boolean appendData = false;
 
 	public static void simulate(Options options) {
-		VelocityVerlet gpc = new VelocityVerlet();
+		GearPredictorCorrector gpc = new GearPredictorCorrector();
 		double dt = 1e-4;
 		double t = 0;
 		int times = 0;
@@ -32,7 +33,8 @@ public class Simulation {
 		List<Particle> previous = area.getParticles();
 		f.calculate(previous, area);
 		double initialEnergy = calculateEnergy(previous, f);
-		while(fraction != 0.5) {
+		System.out.println(initialEnergy);
+		while(fraction > 0.5) {
 			List<Particle> predicted = new ArrayList<> ();
 			int leftParticles = 0;
 			for (Particle p: previous) {
@@ -47,14 +49,11 @@ public class Simulation {
 			t += dt;
 			f.calculate(previous, area);
 			if(times == 10000) {
-				if(fraction != 1) {
-					System.out.println(leftParticles);
-				}
-				logParticles(previous);
 				times = 0;
-//				System.out.println(t);
-//				double energy = calculateEnergy(previous, f);
-//				System.out.println(initialEnergy - energy);
+				double energy = calculateEnergy(previous, f);
+				logData(previous, energy, t, leftParticles);
+				logParticles(previous);
+				System.out.println(energy);
 			}
 		}
 		System.out.println(t);
@@ -113,27 +112,22 @@ public class Simulation {
 		System.out.println(e3/(t/dt));
 	}
 
-	private static void logVelocityModules(List<Particle> particles, double time) {
-		File file = new File("velocity_modules.data");
+	private static void logData(List<Particle> particles, double totalEnergy, double time, int leftParticles) {
+		File file = new File("data.data");
 		FileOutputStream fos = null;
 		try {
-			fos = new FileOutputStream(file, append);
+			fos = new FileOutputStream(file, appendData);
+			appendData = true;
 		} catch (FileNotFoundException e) {
 			return;
 		}
-
 		PrintStream ps = new PrintStream(fos);
 
-		if(!append) {
-			ps.println(particles.size());
+		ps.println(particles.size());
+		ps.println(totalEnergy + " " + leftParticles + " " + time);
+		for (Particle p : particles) {
+			ps.println(p.getVelocityModule());
 		}
-
-		ps.println(time);
-		for (Particle particle: particles) {
-			ps.println(particle.getVelocityModule());
-		}
-
-		ps.println();
 
 		ps.close();
 	}
