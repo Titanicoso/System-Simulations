@@ -16,7 +16,7 @@ public class VelocityVerlet implements Integrator {
                            final List<Particle> particles, final Set<Force> forces, Area area) {
 
         Pair initialForce = new Pair(0,0);
-        forces.stream().foreach(force -> initialForce.sum(force.getForce(particle)));
+        forces.stream().forEach(force -> initialForce.sum(force.getForce(particle)));
         final Pair initialVelocity = particle.getVelocity();
         final double mass = particle.getMass();
 
@@ -28,7 +28,7 @@ public class VelocityVerlet implements Integrator {
         Pair newForce = new Pair(0,0);
         final Particle predicted = new Particle(particle.getId(), newPosition.getX(), newPosition.getY(),
                 initialVelocity.getX(), initialVelocity.getY(), mass, particle.getRadius());
-        forces.stream().foreach(force -> newForce.sum(force.recalculateForce(predicted, particles, area)));
+        forces.stream().forEach(force -> newForce.sum(force.recalculateForce(predicted, particles, area)));
 
 
         final Pair newVelocity = new Pair(

@@ -1,5 +1,6 @@
 package forces;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class NonElasticCollision implements Force {
 	@Override
 	public void calculate(List<Particle> particles, Area area) {
 
-        bundlesOfJoy.clear();
+        bundlesOfJoy = new HashMap<>();
         for (int i = 0; i < particles.size(); i++) {
             if (!bundlesOfJoy.containsKey(i)) {
                 BundleOfJoy boj = new BundleOfJoy();

@@ -46,6 +46,8 @@ public class Simulation {
 			for (Force force: forces) {
 				force.calculate(previous, null);
 			}
+			
+			logParticles(previous);
 		}
 	}
 
