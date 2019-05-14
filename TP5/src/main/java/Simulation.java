@@ -20,11 +20,51 @@ public class Simulation {
 	static boolean append = false;
 	static boolean appendData = false;
 
+	public static void simulate(Options options) {
+		VelocityVerlet vv = new VelocityVerlet();
+		double dt = 1e-5;
+
+		final Area area = generateParticles(options);
+
+		Set<Force> forces = new HashSet<>();
+		forces.add(new NonElasticCollision());
+		forces.add(new GravitationalForce());
+
+		List<Particle> previous = area.getParticles();
+		for (Force force: forces) {
+			force.calculate(previous, area);
+		}
+
+		double t = 0;
+		int times = 0;
+		logParticles(previous, area);
+
+		while(t < 10) {
+			t += dt;
+			times++;
+			List<Particle> predicted = new ArrayList<> ();
+			for (Particle p: previous) {
+				predicted.add(vv.evolve(p, dt, previous, forces, area));
+			}
+			previous = predicted;
+			area.setParticles(predicted);
+			for (Force force: forces) {
+				force.calculate(previous, area);
+			}
+
+			if(times == 0.01/dt) {
+				times = 0;
+				System.out.println("log");
+				logParticles(previous, area);
+			}
+		}
+	}
+
 	public static void simulate1(Options options) {
 		VelocityVerlet vv = new VelocityVerlet();
-		double dt = 1e-4;
+		double dt = 1e-5;
 
-		Particle p1 = new Particle(0, 4, 0, 1, 0, 0.01, 0.1);
+		Particle p1 = new Particle(0, 5.8, 0, 1, 0, 0.01, 0.1);
 		Particle p2 = new Particle(1, 6, 0, -1, 0, 0.01, 0.1);
 		List<Particle> previous = new ArrayList<> ();
 		previous.add(p1);
@@ -47,7 +87,7 @@ public class Simulation {
 				force.calculate(previous, null);
 			}
 			
-			logParticles(previous);
+			logParticles(previous, null);
 		}
 	}
 
@@ -71,7 +111,7 @@ public class Simulation {
 		ps.close();
 	}
 
-	private static void logParticles(List<Particle> particles) {
+	private static void logParticles(List<Particle> particles, Area area) {
 		File file = new File("output.xyz");
 		FileOutputStream fos = null;
 		try {
@@ -83,9 +123,9 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println("Lattice=\"400.0 0.0 0.0 0.0 200.0 0.0 0.0 0.0 1.0\"");
+		ps.println("Lattice=\"" + area.getLength() + " 0.0 0.0 0.0 " + area.getHeight() + " 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
-			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy());
+			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius());
 		}
 
 		ps.close();
