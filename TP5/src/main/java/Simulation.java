@@ -25,9 +25,10 @@ public class Simulation {
 		double dt = 1e-5;
 
 		final Area area = generateParticles(options);
+		System.out.println("generated");
 
 		Set<Force> forces = new HashSet<>();
-		forces.add(new NonElasticCollision());
+		forces.add(new NonElasticCollision(area, options.getMaxRadius()));
 		forces.add(new GravitationalForce());
 
 		List<Particle> previous = area.getParticles();
@@ -52,44 +53,44 @@ public class Simulation {
 				force.calculate(previous, area);
 			}
 
-			if(times == 0.01/dt) {
+			if(times == Math.round(0.001/dt)) {
 				times = 0;
-				System.out.println("log");
+				System.out.println(t);
 				logParticles(previous, area);
 			}
 		}
 	}
 
-	public static void simulate1(Options options) {
-		VelocityVerlet vv = new VelocityVerlet();
-		double dt = 1e-5;
-
-		Particle p1 = new Particle(0, 5.8, 0, 1, 0, 0.01, 0.1);
-		Particle p2 = new Particle(1, 6, 0, -1, 0, 0.01, 0.1);
-		List<Particle> previous = new ArrayList<> ();
-		previous.add(p1);
-		previous.add(p2);
-
-		Set<Force> forces = new HashSet<>();
-		forces.add(new NonElasticCollision());
-
-		for (Force force: forces) {
-			force.calculate(previous, null);
-		}
-
-		while(true) {
-			List<Particle> predicted = new ArrayList<> ();
-			for (Particle p: previous) {
-				predicted.add(vv.evolve(p, dt, previous, forces, null));
-			}
-			previous = predicted;
-			for (Force force: forces) {
-				force.calculate(previous, null);
-			}
-			
-			logParticles(previous, null);
-		}
-	}
+//	public static void simulate1(Options options) {
+//		VelocityVerlet vv = new VelocityVerlet();
+//		double dt = 1e-5;
+//
+//		Particle p1 = new Particle(0, 5.8, 0, 1, 0, 0.01, 0.1);
+//		Particle p2 = new Particle(1, 6, 0, -1, 0, 0.01, 0.1);
+//		List<Particle> previous = new ArrayList<> ();
+//		previous.add(p1);
+//		previous.add(p2);
+//
+//		Set<Force> forces = new HashSet<>();
+//		forces.add(new NonElasticCollision());
+//
+//		for (Force force: forces) {
+//			force.calculate(previous, null);
+//		}
+//
+//		while(true) {
+//			List<Particle> predicted = new ArrayList<> ();
+//			for (Particle p: previous) {
+//				predicted.add(vv.evolve(p, dt, previous, forces, null));
+//			}
+//			previous = predicted;
+//			for (Force force: forces) {
+//				force.calculate(previous, null);
+//			}
+//
+//			logParticles(previous, null);
+//		}
+//	}
 
 	private static void logData(List<Particle> particles, double totalEnergy, double time, int leftParticles) {
 		File file = new File("data.data");
@@ -123,7 +124,7 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println("Lattice=\"" + area.getLength() + " 0.0 0.0 0.0 " + area.getHeight() + " 0.0 0.0 0.0 1.0\"");
+		ps.println("Lattice=\"1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
 			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius());
 		}
@@ -146,14 +147,14 @@ public class Simulation {
 		boolean overlapped;
 		int overlappedTimes = 0;
 
-		while(overlappedTimes < 10000) {
+		while(overlappedTimes < 5) {
 			double ang = rand(0, 2 * Math.PI);
 			double mod = options.getVelocity();
 			double vx = mod * Math.cos(ang);
 			double vy = mod * Math.sin(ang);
 			double radius = rand(options.getMinRadius(), options.getMaxRadius());
 			double x = rand(radius, options.getLength() - radius);
-			double y = rand(radius, options.getHeight() - radius);
+			double y = rand(radius + 1.0/10, options.getHeight() - 1.0/10 - radius);
 
 			Particle particle = new Particle(i, x, y, vx, vy, options.getMass(), radius);
 			overlapped = false;

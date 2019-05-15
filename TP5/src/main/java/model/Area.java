@@ -9,12 +9,14 @@ public class Area {
 	private double height;
 	private double holeLength;
 	private List<Particle> particles;
+	private List<Integer> outParticles;
 	
 	public Area(double length, double height, double holeLength, List<Particle> particles) {
 		this.length = length;
 		this.height = height;
 		this.holeLength = holeLength;
 		this.particles = particles;
+		this.outParticles = new ArrayList<>();
 	}
 	
 	public double getLength() {
@@ -31,6 +33,14 @@ public class Area {
 
 	public void setParticles(List<Particle> particles) {
 		this.particles = particles;
+	}
+
+	public List<Integer> getOutParticles() {
+		return outParticles;
+	}
+
+	public void setOutParticles(List<Integer> outParticles) {
+		this.outParticles = outParticles;
 	}
 
 	public double getHeight() {
@@ -58,17 +68,14 @@ public class Area {
 		final double radius = particle.getRadius();
 
 		if(x >= holeStart && x <= holeEnd) {
-			wallPositions.add(new Particle(-1, x, height + radius, 0, 0, 0, radius));
-			wallPositions.add(new Particle(-1, -radius, y, 0, 0, 0, radius));
-			wallPositions.add(new Particle(-1, length + radius, y, 0, 0, 0, radius));
-			wallPositions.add(new Particle(-1, holeStart, 0, 0, 0, 0, 0));
-			wallPositions.add(new Particle(-1, holeEnd, 0, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-1, holeStart, 1.0/10, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-1, holeEnd, 1.0/10, 0, 0, 0, 0));
 		} else {
-			wallPositions.add(new Particle(-1, x, height + radius, 0, 0, 0, radius));
-			wallPositions.add(new Particle(-1, -radius, y, 0, 0, 0, radius));
-			wallPositions.add(new Particle(-1, length + radius, y, 0, 0, 0, radius));
-			wallPositions.add(new Particle(-1, x, -radius, 0, 0, 0, radius));
+			wallPositions.add(new Particle(-1, x, 1.0/10, 0, 0, 0, 0));
 		}
+		wallPositions.add(new Particle(-1, x, height, 0, 0, 0, 0));
+		wallPositions.add(new Particle(-1,0, y, 0, 0, 0, 0));
+		wallPositions.add(new Particle(-1, length, y, 0, 0, 0, 0));
 
 		return wallPositions;
 	}

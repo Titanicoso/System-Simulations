@@ -11,7 +11,7 @@ public class Options {
     private Double length = 0.3;
 
 	@Option(name = "-H", usage = "Box height.")
-	private Double height = 1.0 + 1.0/10;
+	private Double height = 1.0 + 1.0/10 + 1.0/10;
 
 	@Option(name = "-V", usage = "Velocity module.")
 	private Double velocity = 0.0;

@@ -15,11 +15,55 @@ public class NonElasticCollision implements Force {
     private static final double KN = 1e5;
     private static final double GAMMA = 70.0;
     private Map<Integer, BundleOfJoy> bundlesOfJoy;
-//    private CellIndexMethod cim;
+    private CellIndexMethod cim;
     private static final boolean velocityDependant = true;
-    
-	@Override
-	public void calculate(List<Particle> particles, Area area) {
+
+    public NonElasticCollision(Area area, Double maxRadius) {
+		cim = new CellIndexMethod(area, maxRadius);
+	}
+
+    @Override
+    public void calculate(List<Particle> particles, Area area) {
+        bundlesOfJoy = new HashMap<>();
+        final Map<Integer, List<Particle>> neighbours = cim.findNeighbours(area);
+
+        for (int i = 0; i < particles.size(); i++) {
+            if (!bundlesOfJoy.containsKey(i)) {
+                BundleOfJoy boj = new BundleOfJoy();
+                bundlesOfJoy.put(i, boj);
+            }
+            Particle p1 = particles.get(i);
+
+            if(neighbours.containsKey(i)) {
+                List<Particle> particleNeighbours = neighbours.get(p1.getId());
+
+                for (Particle neighbour : particleNeighbours) {
+                    if (!bundlesOfJoy.containsKey(neighbour.getId())) {
+                        BundleOfJoy boj = new BundleOfJoy();
+                        bundlesOfJoy.put(neighbour.getId(), boj);
+                    }
+
+                    if (p1.isOverlapped(neighbour)) {
+                        double dx = (p1.getX() - neighbour.getX());
+                        double distance = p1.distance(neighbour);
+                        double dy = (p1.getY() - neighbour.getY());
+                        double radiusSum = p1.getRadius() + neighbour.getRadius();
+
+                        double f = -KN * (radiusSum - distance) - GAMMA * p1.relativeVelocityModule(neighbour);
+                        Pair force = new Pair(f * dx / distance, f * dy / distance);
+
+                        BundleOfJoy boj1 = bundlesOfJoy.get(i);
+                        BundleOfJoy boj2 = bundlesOfJoy.get(neighbour.getId());
+                        boj2.force.sum(force);
+                        boj1.force.substract(force);
+                    }
+                }
+            }
+            calculateWallInteractions(p1, area);
+        }
+    }
+
+	public void calculate1(List<Particle> particles, Area area) {
 
         bundlesOfJoy = new HashMap<>();
         for (int i = 0; i < particles.size(); i++) {
@@ -77,6 +121,43 @@ public class NonElasticCollision implements Force {
 
     @Override
     public Pair recalculateForce(Particle particle, List<Particle> particles, Area area) {
+        Pair forces = new Pair(0,0);
+		List<Particle> neighbours = cim.predictParticleNeighbours(particle, area);
+		for (int i = 0; i < neighbours.size(); i++) {
+			Particle p = neighbours.get(i);
+            if (particle.getId() != p.getId() && particle.isOverlapped(p)) {
+                double dx = (particle.getX() - p.getX());
+                double distance = particle.distance(p);
+                double dy = (particle.getY() - p.getY());
+                double radiusSum = particle.getRadius() + p.getRadius();
+
+                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(p);
+                Pair force = new Pair(f * dx/distance, f * dy/distance);
+
+                forces.substract(force);
+            }
+        }
+
+        List<Particle> walls = area.getWallPositions(particle);
+
+        for (Particle wall: walls) {
+            if (particle.isOverlapped(wall)) {
+                double dx = (particle.getX() - wall.getX());
+                double distance = particle.distance(wall);
+                double dy = (particle.getY() - wall.getY());
+                double radiusSum = particle.getRadius() + wall.getRadius();
+
+                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(wall);
+                Pair force = new Pair(f * dx/distance, f * dy/distance);
+
+                forces.substract(force);
+            }
+        }
+
+        return forces;
+    }
+
+    public Pair recalculateForce1(Particle particle, List<Particle> particles, Area area) {
 
         Pair forces = new Pair(0,0);
         for (Particle p : particles) {
