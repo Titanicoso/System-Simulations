@@ -126,7 +126,8 @@ public class Simulation {
 		ps.println(particles.size());
 		ps.println("Lattice=\"1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
-			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy() + " " + p.getRadius());
+			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy()
+					+ " " + p.getRadius() + " " + p.getPressure());
 		}
 
 		ps.close();
@@ -147,14 +148,14 @@ public class Simulation {
 		boolean overlapped;
 		int overlappedTimes = 0;
 
-		while(overlappedTimes < 5) {
+		while(overlappedTimes < 10000 || particles.size() == options.getN()) {
 			double ang = rand(0, 2 * Math.PI);
 			double mod = options.getVelocity();
 			double vx = mod * Math.cos(ang);
 			double vy = mod * Math.sin(ang);
 			double radius = rand(options.getMinRadius(), options.getMaxRadius());
 			double x = rand(radius, options.getLength() - radius);
-			double y = rand(radius + 1.0/10, options.getHeight() - 1.0/10 - radius);
+			double y = rand(radius + 1.0/10, options.getHeight() - radius);
 
 			Particle particle = new Particle(i, x, y, vx, vy, options.getMass(), radius);
 			overlapped = false;

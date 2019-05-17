@@ -27,14 +27,17 @@ public class CellIndexMethod {
                 final int cellX = (int) Math.floor(particle.getX() / cellLength);
                 final int cellY = (int) Math.floor(particle.getY() / cellLength);
 
-                final int cell = cellX + cellY * mY;
+                final int cell = cellX + cellY * mX;
 
                 if (!grid.containsKey(cell)) {
                     grid.put(cell, new ArrayList<>());
                 }
                 grid.get(cell).add(particle);
-                if (particle.getY() < area.getHeight() - 1.0 / 10) {
+                if (particle.getY() < area.getHeight() - 2.0 / 10) {
                     area.getOutParticles().remove(Integer.valueOf(particle.getId()));
+                } else {
+                    if(!area.getOutParticles().contains(particle.getId()))
+                        area.getOutParticles().add(particle.getId());
                 }
             } else {
                 outParticles.add(particle.getId());
@@ -48,7 +51,7 @@ public class CellIndexMethod {
             p1.setVelocity(new Pair(0, 0));
             boolean overlapped = false;
             double x = rand(p1.getRadius(), area.getLength() - p1.getRadius());
-            double y = rand(area.getHeight() - 1.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
+            double y = rand(area.getHeight() - 2.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
             p1.setPosition(new Pair(x, y));
             for (int j = 0; j < area.getOutParticles().size(); j++) {
                 int id2 = area.getOutParticles().get(j);
@@ -102,14 +105,14 @@ public class CellIndexMethod {
 
     private int getNeighbour(final int cell, final int up, final int right) {
 
-        int neighbourX = (cell % mY) + right;
-        int neighbourY = (cell / mY) - up;
+        int neighbourX = (cell % mX) + right;
+        int neighbourY = (cell / mX) - up;
 
-        if((neighbourX < 0 || neighbourX >=  mY ||
+        if((neighbourX < 0 || neighbourX >=  mX ||
                 neighbourY < 0 || neighbourY >= mY))
             return -1;
 
-        return neighbourX + neighbourY * mY;
+        return neighbourX + neighbourY * mX;
     }
 
     private void findCellNeighbours(final Map<Integer, List<Particle>> neighbours, final List<Particle> cell1,
@@ -171,7 +174,7 @@ public class CellIndexMethod {
 
         final int cellX = (int) Math.floor(particle.getX() / cellLength);
         final int cellY = (int) Math.floor(particle.getY() / cellLength);
-        final int cellI = cellX + cellY * mY;
+        final int cellI = cellX + cellY * mX;
 
         if(cellI < 0 || cellI > grid.size())
             return Collections.emptyList();

@@ -5,13 +5,13 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name = "-N", usage = "Initial particles.")
-    private Integer n = 200;
+    private Integer n = 250;
 	
 	@Option(name = "-L", usage = "Box length.")
     private Double length = 0.3;
 
 	@Option(name = "-H", usage = "Box height.")
-	private Double height = 1.0 + 1.0/10 + 1.0/10;
+	private Double height = 1.0 + 1.0/10;
 
 	@Option(name = "-V", usage = "Velocity module.")
 	private Double velocity = 0.0;

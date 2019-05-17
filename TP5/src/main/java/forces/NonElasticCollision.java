@@ -13,6 +13,7 @@ import model.Particle;
 public class NonElasticCollision implements Force {
 
     private static final double KN = 1e5;
+    private static final double KT = 2e5;
     private static final double GAMMA = 70.0;
     private Map<Integer, BundleOfJoy> bundlesOfJoy;
     private CellIndexMethod cim;
@@ -22,7 +23,7 @@ public class NonElasticCollision implements Force {
 		cim = new CellIndexMethod(area, maxRadius);
 	}
 
-    @Override
+	@Override
     public void calculate(List<Particle> particles, Area area) {
         bundlesOfJoy = new HashMap<>();
         final Map<Integer, List<Particle>> neighbours = cim.findNeighbours(area);
@@ -49,17 +50,27 @@ public class NonElasticCollision implements Force {
                         double dy = (p1.getY() - neighbour.getY());
                         double radiusSum = p1.getRadius() + neighbour.getRadius();
 
-                        double f = -KN * (radiusSum - distance) - GAMMA * p1.relativeVelocityModule(neighbour);
-                        Pair force = new Pair(f * dx / distance, f * dy / distance);
+                        double fn = -KN * (radiusSum - distance) - GAMMA * getOverlapDerivative(p1, neighbour);
+                        //Pair relativeVelocity = p1.getRelativeVelocity(neighbour);
+                        double ft = 0;
+                        //double ft = -KT * (radiusSum - distance) *
+                        //        (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);
+                        Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                                fn * dy / distance + ft * dx / distance);
 
                         BundleOfJoy boj1 = bundlesOfJoy.get(i);
                         BundleOfJoy boj2 = bundlesOfJoy.get(neighbour.getId());
                         boj2.force.sum(force);
                         boj1.force.substract(force);
+                        boj1.pressure += fn;
+                        boj2.pressure -= fn;
                     }
                 }
             }
             calculateWallInteractions(p1, area);
+            BundleOfJoy boj = bundlesOfJoy.get(i);
+            boj.pressure /= 2 * Math.PI * p1.getRadius();
+            p1.setPressure(boj.pressure);
         }
     }
 
@@ -78,14 +89,18 @@ public class NonElasticCollision implements Force {
                     bundlesOfJoy.put(j, boj);
                 }
                 Particle p2 = particles.get(j);
-                if (p1.isOverlapped(p2)) {
+                if (p1.isOverlapped(p2) && p1.getY() > 0 && p2.getY() > 0) {
                     double dx = (p1.getX() - p2.getX());
                     double distance = p1.distance(p2);
                     double dy = (p1.getY() - p2.getY());
                     double radiusSum = p1.getRadius() + p2.getRadius();
 
-                    double f = -KN * (radiusSum - distance) - GAMMA * p1.relativeVelocityModule(p2);
-                    Pair force = new Pair(f * dx/distance, f * dy/distance);
+                    double fn = -KN * (radiusSum - distance)/* - GAMMA * getOverlapDerivative(p1, neighbour)*/;
+                    Pair relativeVelocity = p1.getRelativeVelocity(p2);
+                    double ft = -KT * (radiusSum - distance) *
+                            (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);
+                    Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                            fn * dy / distance + ft * dx / distance);
 
                     BundleOfJoy boj1 = bundlesOfJoy.get(i);
                     BundleOfJoy boj2 = bundlesOfJoy.get(j);
@@ -110,14 +125,21 @@ public class NonElasticCollision implements Force {
                 double dy = (particle.getY() - wall.getY());
                 double radiusSum = particle.getRadius() + wall.getRadius();
 
-                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(wall);
-                Pair force = new Pair(f * dx/distance, f * dy/distance);
+                double fn = -KN * (radiusSum - distance) - GAMMA * getOverlapDerivative(particle, wall);
+                /*Pair relativeVelocity = particle.getRelativeVelocity(wall);
+                double ft = -KT * (radiusSum - distance) *
+                        (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);*/
+                double ft = 0;
+                Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                        fn * dy / distance + ft * dx / distance);
 
                 BundleOfJoy boj = bundlesOfJoy.get(particle.getId());
                 boj.force.substract(force);
+                boj.pressure += fn;
             }
         }
     }
+
 
     @Override
     public Pair recalculateForce(Particle particle, List<Particle> particles, Area area) {
@@ -131,8 +153,13 @@ public class NonElasticCollision implements Force {
                 double dy = (particle.getY() - p.getY());
                 double radiusSum = particle.getRadius() + p.getRadius();
 
-                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(p);
-                Pair force = new Pair(f * dx/distance, f * dy/distance);
+                double fn = -KN * (radiusSum - distance) - GAMMA * getOverlapDerivative(particle, p);
+                /*Pair relativeVelocity = particle.getRelativeVelocity(p);
+                double ft = -KT * (radiusSum - distance) *
+                        (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);*/
+                double ft = 0;
+                Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                        fn * dy / distance + ft * dx / distance);
 
                 forces.substract(force);
             }
@@ -147,8 +174,13 @@ public class NonElasticCollision implements Force {
                 double dy = (particle.getY() - wall.getY());
                 double radiusSum = particle.getRadius() + wall.getRadius();
 
-                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(wall);
-                Pair force = new Pair(f * dx/distance, f * dy/distance);
+                double fn = -KN * (radiusSum - distance) - GAMMA * getOverlapDerivative(particle, wall);
+                /*Pair relativeVelocity = particle.getRelativeVelocity(wall);
+                double ft = -KT * (radiusSum - distance) *
+                        (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);*/
+                double ft = 0;
+                Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                        fn * dy / distance + ft * dx / distance);
 
                 forces.substract(force);
             }
@@ -161,14 +193,18 @@ public class NonElasticCollision implements Force {
 
         Pair forces = new Pair(0,0);
         for (Particle p : particles) {
-            if (particle.getId() != p.getId() && particle.isOverlapped(p)) {
+            if (particle.getId() != p.getId() && particle.isOverlapped(p) && particle.getY() > 0 && p.getY() > 0) {
                 double dx = (particle.getX() - p.getX());
                 double distance = particle.distance(p);
                 double dy = (particle.getY() - p.getY());
                 double radiusSum = particle.getRadius() + p.getRadius();
 
-                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(p);
-                Pair force = new Pair(f * dx/distance, f * dy/distance);
+                double fn = -KN * (radiusSum - distance)/* - GAMMA * getOverlapDerivative(p1, neighbour)*/;
+                Pair relativeVelocity = particle.getRelativeVelocity(p);
+                double ft = -KT * (radiusSum - distance) *
+                        (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);
+                Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                        fn * dy / distance + ft * dx / distance);
 
                 forces.substract(force);
             }
@@ -178,20 +214,33 @@ public class NonElasticCollision implements Force {
         List<Particle> walls = area.getWallPositions(particle);
 
         for (Particle wall: walls) {
-            if (particle.isOverlapped(wall)) {
+            if (particle.isOverlapped(wall) && particle.getY() > 0) {
                 double dx = (particle.getX() - wall.getX());
                 double distance = particle.distance(wall);
                 double dy = (particle.getY() - wall.getY());
                 double radiusSum = particle.getRadius() + wall.getRadius();
 
-                double f = -KN * (radiusSum - distance) - GAMMA * particle.relativeVelocityModule(wall);
-                Pair force = new Pair(f * dx/distance, f * dy/distance);
+                double fn = -KN * (radiusSum - distance)/* - GAMMA * getOverlapDerivative(p1, neighbour)*/;
+                Pair relativeVelocity = particle.getRelativeVelocity(wall);
+                double ft = -KT * (radiusSum - distance) *
+                        (relativeVelocity.getX() * -dy / distance + relativeVelocity.getX() * dx / distance);
+                Pair force = new Pair(fn * dx / distance + ft * -dy / distance,
+                        fn * dy / distance + ft * dx / distance);
 
                 forces.substract(force);
             }
         }
 
         return forces;
+    }
+
+    private double getOverlapDerivative(Particle p1, Particle p2) {
+        Pair relativeVelocity = p2.getRelativeVelocity(p1);
+        double relativeVelocityModule = p1.relativeVelocityModule(p2);
+        if(relativeVelocityModule == 0)
+            return 0;
+        Pair versor = new Pair(relativeVelocity).multiplyByScalar(1/relativeVelocityModule);
+        return versor.getX() * relativeVelocity.getX() + versor.getY() * relativeVelocity.getY();
     }
 
     @Override
@@ -225,14 +274,14 @@ public class NonElasticCollision implements Force {
     }
 
     private class BundleOfJoy {
-        double potential;
+        double pressure;
         Pair force;
         Pair d1;
         Pair d2;
         Pair d3;
 
         BundleOfJoy() {
-            this.potential = 0;
+            this.pressure = 0;
             this.force = new Pair(0, 0);
             this.d1 = new Pair(0, 0);
             this.d2 = new Pair(0, 0);
