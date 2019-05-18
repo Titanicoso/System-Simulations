@@ -62,7 +62,7 @@ public class NonElasticCollision implements Force {
                         BundleOfJoy boj2 = bundlesOfJoy.get(neighbour.getId());
                         boj2.force.sum(force);
                         boj1.force.substract(force);
-                        boj1.pressure += fn;
+                        boj1.pressure -= fn;
                         boj2.pressure -= fn;
                     }
                 }
@@ -135,7 +135,7 @@ public class NonElasticCollision implements Force {
 
                 BundleOfJoy boj = bundlesOfJoy.get(particle.getId());
                 boj.force.substract(force);
-                boj.pressure += fn;
+                boj.pressure -= fn;
             }
         }
     }

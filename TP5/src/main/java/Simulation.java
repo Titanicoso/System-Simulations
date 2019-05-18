@@ -53,7 +53,7 @@ public class Simulation {
 				force.calculate(previous, area);
 			}
 
-			if(times == Math.round(0.001/dt)) {
+			if(times == Math.round(0.01/dt)) {
 				times = 0;
 				System.out.println(t);
 				logParticles(previous, area);

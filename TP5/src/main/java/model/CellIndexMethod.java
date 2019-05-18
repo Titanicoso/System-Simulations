@@ -33,7 +33,7 @@ public class CellIndexMethod {
                     grid.put(cell, new ArrayList<>());
                 }
                 grid.get(cell).add(particle);
-                if (particle.getY() < area.getHeight() - 2.0 / 10) {
+                if (particle.getY() + particle.getRadius() < area.getHeight() - 2.0 / 10) {
                     area.getOutParticles().remove(Integer.valueOf(particle.getId()));
                 } else {
                     if(!area.getOutParticles().contains(particle.getId()))
