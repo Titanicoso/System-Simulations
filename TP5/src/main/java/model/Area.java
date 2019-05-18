@@ -57,15 +57,15 @@ public class Area {
 		final double y = particle.getY();
 		final double radius = particle.getRadius();
 
-		if(x >= holeStart && x <= holeEnd) {
+		if(x >= holeStart && x <= holeEnd && holeLength != 0) {
 			wallPositions.add(new Particle(-1, holeStart, 1.0/10, 0, 0, 0, 0));
-			wallPositions.add(new Particle(-1, holeEnd, 1.0/10, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-2, holeEnd, 1.0/10, 0, 0, 0, 0));
 		} else {
-			wallPositions.add(new Particle(-1, x, 1.0/10, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-3, x, 1.0/10, 0, 0, 0, 0));
 		}
-		wallPositions.add(new Particle(-1, x, height, 0, 0, 0, 0));
-		wallPositions.add(new Particle(-1,0, y, 0, 0, 0, 0));
-		wallPositions.add(new Particle(-1, length, y, 0, 0, 0, 0));
+		wallPositions.add(new Particle(-4, x, height, 0, 0, 0, 0));
+		wallPositions.add(new Particle(-5,0, y, 0, 0, 0, 0));
+		wallPositions.add(new Particle(-6, length, y, 0, 0, 0, 0));
 
 		return wallPositions;
 	}

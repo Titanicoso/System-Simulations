@@ -5,7 +5,7 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name = "-N", usage = "Initial particles.")
-    private Integer n = 250;
+    private Integer n = 400;
 	
 	@Option(name = "-L", usage = "Box length.")
     private Double length = 0.3;
@@ -17,7 +17,7 @@ public class Options {
 	private Double velocity = 0.0;
 
 	@Option(name = "-HO", usage = "Hole size.")
-	private Double hole = 0.0;
+	private Double hole = 0.15;
 	
 	@Option(name = "-M", usage = "Particle mass.")
 	private Double mass = 0.01;

@@ -89,7 +89,7 @@ public class Simulation {
 			p1.setVelocity(new Pair(0, 0));
 			boolean overlapped = false;
 			double x = rand(p1.getRadius(), area.getLength() - p1.getRadius());
-			double y = rand(area.getHeight() - 2.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
+			double y = rand(area.getHeight() - 3.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
 			p1.setPosition(new Pair(x, y));
 			for (int j = 0; j < upperParticles.size(); j++) {
 				int id2 = upperParticles.get(j);
@@ -110,30 +110,39 @@ public class Simulation {
 //		VelocityVerlet vv = new VelocityVerlet();
 //		double dt = 1e-5;
 //
-//		Particle p1 = new Particle(0, 5.8, 0, 1, 0, 0.01, 0.1);
+//		Particle p1 = new Particle(0, 1, 2, 0, 0, 0.01, 0.1);
 //		Particle p2 = new Particle(1, 6, 0, -1, 0, 0.01, 0.1);
 //		List<Particle> previous = new ArrayList<> ();
 //		previous.add(p1);
-//		previous.add(p2);
+//		//previous.add(p2);
 //
 //		Set<Force> forces = new HashSet<>();
-//		forces.add(new NonElasticCollision());
+//		Area area = new Area(10,10,0.0,previous);
+//		forces.add(new NonElasticCollision(area, 0.1));
+//		forces.add(new GravitationalForce());
 //
 //		for (Force force: forces) {
-//			force.calculate(previous, null);
+//			force.calculate(previous, area);
 //		}
+//		logParticles(previous, area);
+//		int times = 0;
 //
 //		while(true) {
 //			List<Particle> predicted = new ArrayList<> ();
 //			for (Particle p: previous) {
-//				predicted.add(vv.evolve(p, dt, previous, forces, null));
+//				predicted.add(vv.evolve(p, dt, previous, forces, area));
 //			}
 //			previous = predicted;
 //			for (Force force: forces) {
-//				force.calculate(previous, null);
+//				force.calculate(previous, area);
 //			}
 //
-//			logParticles(previous, null);
+//			if(times == 10000) {
+//				logParticles(previous, area);
+//				times = 0;
+//				System.out.println(times);
+//			} else
+//				times++;
 //		}
 //	}
 
@@ -193,7 +202,7 @@ public class Simulation {
 		boolean overlapped;
 		int overlappedTimes = 0;
 
-		while(overlappedTimes < 10000 || particles.size() == options.getN()) {
+		while(overlappedTimes < 10000 && particles.size() < options.getN()) {
 			double ang = rand(0, 2 * Math.PI);
 			double mod = options.getVelocity();
 			double vx = mod * Math.cos(ang);

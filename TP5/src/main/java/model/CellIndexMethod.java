@@ -96,6 +96,11 @@ public class CellIndexMethod {
                         if(!neighbours.containsKey(particle1.getId())) {
                             neighbours.put(particle1.getId(), new ArrayList<>());
                         }
+                        if(!neighbours.containsKey(particle2.getId())) {
+                            neighbours.put(particle2.getId(), new ArrayList<>());
+                        }
+
+                        neighbours.get(particle2.getId()).add(particle1);
 
                         neighbours.get(particle1.getId()).add(particle2);
                     }
@@ -116,6 +121,11 @@ public class CellIndexMethod {
                     if(!neighbours.containsKey(particle1.getId())) {
                         neighbours.put(particle1.getId(), new ArrayList<>());
                     }
+                    if(!neighbours.containsKey(particle2.getId())) {
+                        neighbours.put(particle2.getId(), new ArrayList<>());
+                    }
+
+                    neighbours.get(particle2.getId()).add(particle1);
 
                     neighbours.get(particle1.getId()).add(particle2);
                 }
