@@ -8,13 +8,15 @@ public class Area {
 	private double length;
 	private double height;
 	private double holeLength;
+	private double extraSpace;
 	private List<Particle> particles;
 	
-	public Area(double length, double height, double holeLength, List<Particle> particles) {
+	public Area(double length, double height, double holeLength, double extraSpace, List<Particle> particles) {
 		this.length = length;
 		this.height = height;
 		this.holeLength = holeLength;
 		this.particles = particles;
+		this.extraSpace = extraSpace;
 	}
 	
 	public double getLength() {
@@ -47,6 +49,14 @@ public class Area {
 
 	public void setHoleLength(double holeLength) {
 		this.holeLength = holeLength;
+	}
+
+	public double getExtraSpace() {
+		return extraSpace;
+	}
+
+	public void setExtraSpace(double extraSpace) {
+		this.extraSpace = extraSpace;
 	}
 
 	public List<Particle> getWallPositions(Particle particle) {

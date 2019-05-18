@@ -2,11 +2,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import forces.GravitationalForce;
 import forces.NonElasticCollision;
@@ -20,6 +18,7 @@ public class Simulation {
 
 	static boolean append = false;
 	static boolean appendData = false;
+	static boolean appendFlow = false;
 
 	public static void simulate(Options options) {
 		VelocityVerlet vv = new VelocityVerlet();
@@ -40,8 +39,10 @@ public class Simulation {
 		double t = 0;
 		int times = 0;
 		logParticles(previous, area);
+		logData(calculateKineticEnergy(previous), t);
 
 		List<Integer> upperParticles = new ArrayList<>();
+		Map<Integer, Double> outOfHoleParticles = new HashMap<>();
 
 		while(t < 10) {
 			t += dt;
@@ -50,35 +51,46 @@ public class Simulation {
 			List<Integer> outParticles = new ArrayList<>();
 			for (Particle p: previous) {
 				Particle predictedParticle = vv.evolve(p, dt, previous, forces, area);
-				checkIfParticleIsOut(upperParticles, outParticles, predictedParticle, area);
+				checkIfParticleNeedsRegen(upperParticles, outParticles, predictedParticle, area);
 				predicted.add(predictedParticle);
+				checkIfParticleIsOut(predictedParticle, area, outOfHoleParticles, t);
 			}
 			regenerateParticles(upperParticles, outParticles, predicted, area);
+			if(outParticles.size() > 0) {
+				logFlow(outOfHoleParticles, outParticles);
+				outParticles.forEach(outOfHoleParticles::remove);
+			}
 			previous = predicted;
 			area.setParticles(predicted);
 			for (Force force: forces) {
 				force.calculate(previous, area);
 			}
-
 			if(times == Math.round(0.01/dt)) {
 				times = 0;
 				System.out.println(t);
 				logParticles(previous, area);
+				logData(calculateKineticEnergy(previous), t);
 			}
 		}
+		logFlow(outOfHoleParticles, new ArrayList<>(outOfHoleParticles.keySet()));
 	}
 
-	private static void checkIfParticleIsOut(List<Integer> upperParticles, List<Integer> outParticles, Particle predictedParticle, Area area) {
+	private static void checkIfParticleNeedsRegen(List<Integer> upperParticles, List<Integer> outParticles, Particle predictedParticle, Area area) {
 		if(predictedParticle.getY() < 0) {
 			outParticles.add(predictedParticle.getId());
 		} else {
-			if (predictedParticle.getY() + predictedParticle.getRadius() < area.getHeight() - 2.0 / 10) {
+			if (predictedParticle.getY() + predictedParticle.getRadius() < area.getHeight() - 3.0 / 10) {
 				upperParticles.remove(Integer.valueOf(predictedParticle.getId()));
 			} else {
 				if(!upperParticles.contains(predictedParticle.getId()))
 					upperParticles.add(predictedParticle.getId());
 			}
 		}
+	}
+
+	private static void checkIfParticleIsOut(Particle predictedParticle, Area area, Map<Integer, Double> outOfHole, double time) {
+		if(predictedParticle.getY() < area.getExtraSpace() && !outOfHole.containsKey(predictedParticle.getId()))
+			outOfHole.put(predictedParticle.getId(), time);
 	}
 
 	private static void regenerateParticles(List<Integer> upperParticles, List<Integer> outParticles, List<Particle> predicted, Area area) {
@@ -146,7 +158,7 @@ public class Simulation {
 //		}
 //	}
 
-	private static void logData(List<Particle> particles, double totalEnergy, double time, int leftParticles) {
+	private static void logData(double totalEnergy, double time) {
 		File file = new File("data.data");
 		FileOutputStream fos = null;
 		try {
@@ -156,12 +168,24 @@ public class Simulation {
 			return;
 		}
 		PrintStream ps = new PrintStream(fos);
+		ps.println(totalEnergy + " " + time);
 
-		ps.println(particles.size());
-		ps.println(totalEnergy + " " + leftParticles + " " + time);
-		for (Particle p : particles) {
-			ps.println(p.getVelocityModule());
+		ps.close();
+	}
+
+	private static void logFlow(Map<Integer, Double> outParticles, List<Integer> regenParticles) {
+		File file = new File("flow.data");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, appendFlow);
+			appendFlow = true;
+		} catch (FileNotFoundException e) {
+			return;
 		}
+		PrintStream ps = new PrintStream(fos);
+		outParticles.entrySet().stream()
+				.filter(entry -> regenParticles.contains(entry.getKey()))
+				.forEach(entry -> ps.println(entry.getValue()));
 
 		ps.close();
 	}
@@ -187,12 +211,12 @@ public class Simulation {
 		ps.close();
 	}
 
-	private static double calculateKineticEnergy(final List<Particle> particles, final Force force) {
+	private static double calculateKineticEnergy(final List<Particle> particles) {
 
 		return particles.stream()
 				.mapToDouble(particle -> 0.5 * (particle.getMass()) * (Math.pow(particle.getVx(), 2)
 						+ Math.pow(particle.getVy(), 2)))
-				.average().orElse(0);
+				.sum();
 	}
 
 	public static Area generateParticles(Options options) {
@@ -227,7 +251,7 @@ public class Simulation {
 			}
 		}
 
-		return new Area(options.getLength(), options.getHeight(), options.getHole(), particles);
+		return new Area(options.getLength(), options.getHeight(), options.getHole(), options.getExtraSpace(), particles);
 	}
 
 	private static double rand(double min, double max) {
