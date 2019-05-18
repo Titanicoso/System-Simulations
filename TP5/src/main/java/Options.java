@@ -17,7 +17,7 @@ public class Options {
 	private Double velocity = 0.0;
 
 	@Option(name = "-HO", usage = "Hole size.")
-	private Double hole = 0.15;
+	private Double hole = 0.0;
 	
 	@Option(name = "-M", usage = "Particle mass.")
 	private Double mass = 0.01;

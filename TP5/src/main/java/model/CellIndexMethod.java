@@ -20,7 +20,6 @@ public class CellIndexMethod {
     private void populateGrid(final Area area) {
 
         grid = new HashMap<>();
-        List<Integer> outParticles = new ArrayList<>();
 
         for (final Particle particle: area.getParticles()) {
             if(particle.getY() >= 0) {
@@ -33,37 +32,6 @@ public class CellIndexMethod {
                     grid.put(cell, new ArrayList<>());
                 }
                 grid.get(cell).add(particle);
-                if (particle.getY() + particle.getRadius() < area.getHeight() - 2.0 / 10) {
-                    area.getOutParticles().remove(Integer.valueOf(particle.getId()));
-                } else {
-                    if(!area.getOutParticles().contains(particle.getId()))
-                        area.getOutParticles().add(particle.getId());
-                }
-            } else {
-                outParticles.add(particle.getId());
-            }
-        }
-
-        int i = 0;
-        while (i < outParticles.size()) {
-            int id1 = outParticles.get(i);
-            Particle p1 = area.getParticles().get(id1);
-            p1.setVelocity(new Pair(0, 0));
-            boolean overlapped = false;
-            double x = rand(p1.getRadius(), area.getLength() - p1.getRadius());
-            double y = rand(area.getHeight() - 2.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
-            p1.setPosition(new Pair(x, y));
-            for (int j = 0; j < area.getOutParticles().size(); j++) {
-                int id2 = area.getOutParticles().get(j);
-                Particle p2 = area.getParticles().get(id2);
-                if (p1.isOverlapped(p2)) {
-                    overlapped = true;
-                    break;
-                }
-            }
-            if (!overlapped) {
-                area.getOutParticles().add(p1.getId());
-                i++;
             }
         }
     }

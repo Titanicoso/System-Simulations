@@ -9,14 +9,12 @@ public class Area {
 	private double height;
 	private double holeLength;
 	private List<Particle> particles;
-	private List<Integer> outParticles;
 	
 	public Area(double length, double height, double holeLength, List<Particle> particles) {
 		this.length = length;
 		this.height = height;
 		this.holeLength = holeLength;
 		this.particles = particles;
-		this.outParticles = new ArrayList<>();
 	}
 	
 	public double getLength() {
@@ -33,14 +31,6 @@ public class Area {
 
 	public void setParticles(List<Particle> particles) {
 		this.particles = particles;
-	}
-
-	public List<Integer> getOutParticles() {
-		return outParticles;
-	}
-
-	public void setOutParticles(List<Integer> outParticles) {
-		this.outParticles = outParticles;
 	}
 
 	public double getHeight() {

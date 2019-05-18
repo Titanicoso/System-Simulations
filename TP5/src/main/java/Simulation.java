@@ -13,6 +13,7 @@ import forces.NonElasticCollision;
 import integrators.VelocityVerlet;
 import interfaces.Force;
 import model.Area;
+import model.Pair;
 import model.Particle;
 
 public class Simulation {
@@ -40,13 +41,19 @@ public class Simulation {
 		int times = 0;
 		logParticles(previous, area);
 
+		List<Integer> upperParticles = new ArrayList<>();
+
 		while(t < 10) {
 			t += dt;
 			times++;
-			List<Particle> predicted = new ArrayList<> ();
+			List<Particle> predicted = new ArrayList<>();
+			List<Integer> outParticles = new ArrayList<>();
 			for (Particle p: previous) {
-				predicted.add(vv.evolve(p, dt, previous, forces, area));
+				Particle predictedParticle = vv.evolve(p, dt, previous, forces, area);
+				checkIfParticleIsOut(upperParticles, outParticles, predictedParticle, area);
+				predicted.add(predictedParticle);
 			}
+			regenerateParticles(upperParticles, outParticles, predicted, area);
 			previous = predicted;
 			area.setParticles(predicted);
 			for (Force force: forces) {
@@ -57,6 +64,44 @@ public class Simulation {
 				times = 0;
 				System.out.println(t);
 				logParticles(previous, area);
+			}
+		}
+	}
+
+	private static void checkIfParticleIsOut(List<Integer> upperParticles, List<Integer> outParticles, Particle predictedParticle, Area area) {
+		if(predictedParticle.getY() < 0) {
+			outParticles.add(predictedParticle.getId());
+		} else {
+			if (predictedParticle.getY() + predictedParticle.getRadius() < area.getHeight() - 2.0 / 10) {
+				upperParticles.remove(Integer.valueOf(predictedParticle.getId()));
+			} else {
+				if(!upperParticles.contains(predictedParticle.getId()))
+					upperParticles.add(predictedParticle.getId());
+			}
+		}
+	}
+
+	private static void regenerateParticles(List<Integer> upperParticles, List<Integer> outParticles, List<Particle> predicted, Area area) {
+		int i = 0;
+		while (i < outParticles.size()) {
+			int id1 = outParticles.get(i);
+			Particle p1 = predicted.get(id1);
+			p1.setVelocity(new Pair(0, 0));
+			boolean overlapped = false;
+			double x = rand(p1.getRadius(), area.getLength() - p1.getRadius());
+			double y = rand(area.getHeight() - 2.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
+			p1.setPosition(new Pair(x, y));
+			for (int j = 0; j < upperParticles.size(); j++) {
+				int id2 = upperParticles.get(j);
+				Particle p2 = predicted.get(id2);
+				if (p1.isOverlapped(p2)) {
+					overlapped = true;
+					break;
+				}
+			}
+			if (!overlapped) {
+				upperParticles.add(p1.getId());
+				i++;
 			}
 		}
 	}
@@ -133,7 +178,7 @@ public class Simulation {
 		ps.close();
 	}
 
-	private static double calculateEnergy(final List<Particle> particles, final Force force) {
+	private static double calculateKineticEnergy(final List<Particle> particles, final Force force) {
 
 		return particles.stream()
 				.mapToDouble(particle -> 0.5 * (particle.getMass()) * (Math.pow(particle.getVx(), 2)
