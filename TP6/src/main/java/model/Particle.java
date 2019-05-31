@@ -21,6 +21,14 @@ public class Particle {
 		this.radius = radius;
 		this.interactionRadius = interactionRadius;
 	}
+
+	public Particle(final Particle particle) {
+		this.id = particle.getId();
+		this.position = new Pair(particle.getX(), particle.getY());
+		this.velocity = new Pair(particle.getVx(), particle.getVy());
+		this.radius = particle.getRadius();
+		this.interactionRadius = particle.getInteractionRadius();
+	}
 	
 	public boolean isOverlapped(final Particle particle) {
 		return interactionRadius + particle.getInteractionRadius() - distance(particle) >= 0;

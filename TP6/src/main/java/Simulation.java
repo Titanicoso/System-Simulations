@@ -6,10 +6,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import model.Area;
-import model.CellIndexMethod;
-import model.Pair;
-import model.Particle;
+import model.*;
 
 public class Simulation {
 
@@ -22,45 +19,41 @@ public class Simulation {
 		final Area area = generateParticles(options);
 		System.out.println("generated");
 		CellIndexMethod cim = new CellIndexMethod(area, options.getMaxRadius());
+		final ContractileParticleModel cpm = new ContractileParticleModel(
+		        options.getVelocity(), options.getMaxRadius(), area);
 
 		double t = 0;
 		int times = 0;
 
 		Map<Integer, Double> outOfHoleParticles = new HashMap<>();
+        List<Particle> previous = area.getParticles();
+        List<Particle> predicted;
 
-		while(!area.getParticles().isEmpty()) {
+		while(!previous.isEmpty()) {
 			t += dt;
 			times++;
 
 			Map<Integer, List<Particle>> neighbours = cim.findNeighbours(area);
-			for (Particle particle : area.getParticles()) {
-				Pair target;
-				if(area.isInHole(particle)) {
-					target = new Pair(particle.getX(), 0);
-				} else {
-					target = area.computeTarget(particle);
-				}
+            predicted = new ArrayList<>();
 
-				if (neighbours.containsKey(particle.getId())) {
-					particle.contractRadius();
-					particle.escapeVelocity(neighbours.get(particle.getId()), options.getVelocity());
-					particle.move(dt);
-					particle.updateVelocity(target, options.getMaxRadius(), options.getVelocity());
-				} else {
-					particle.move(dt);
-					particle.updateVelocity(target, options.getMaxRadius(), options.getVelocity());
-					particle.updateRadius(dt, options.getMaxRadius());
-				}
-				if(particle.getY() < 1.0)
-					outOfHoleParticles.put(particle.getId(), t);
+			for (Particle particle : previous) {
+                Particle predictedParticle = cpm.evolve(particle,
+                        neighbours.get(particle.getId()), dt);
+
+                if(predictedParticle.getY() >= 1.0) {
+                    predicted.add(predictedParticle);
+                } else {
+                    outOfHoleParticles.put(predictedParticle.getId(), t);
+                }
 			}
 
-			outOfHoleParticles.forEach((id, exit) -> area.getParticles().removeIf(particle -> particle.getId() == id));
+			previous = predicted;
+			area.setParticles(predicted);
 
 			if (times == Math.round(0.1 / dt)) {
 				times = 0;
 				System.out.println(t);
-				logParticles(area.getParticles(), area);
+				logParticles(previous, area);
 			}
 		}
 	}
