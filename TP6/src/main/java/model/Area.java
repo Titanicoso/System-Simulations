@@ -68,15 +68,31 @@ public class Area {
 		final double radius = particle.getRadius();
 
 		if(x >= holeStart && x <= holeEnd && holeLength != 0) {
-			wallPositions.add(new Particle(-1, holeStart, 1.0/10, 0, 0, 0, 0));
-			wallPositions.add(new Particle(-2, holeEnd, 1.0/10, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-1, holeStart, 1.0, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-2, holeEnd, 1.0, 0, 0, 0, 0));
 		} else {
-			wallPositions.add(new Particle(-3, x, 1.0/10, 0, 0, 0, 0));
+			wallPositions.add(new Particle(-3, x, 1.0, 0, 0, 0, 0));
 		}
 		wallPositions.add(new Particle(-4, x, height, 0, 0, 0, 0));
 		wallPositions.add(new Particle(-5,0, y, 0, 0, 0, 0));
 		wallPositions.add(new Particle(-6, length, y, 0, 0, 0, 0));
 
 		return wallPositions;
+	}
+
+	public boolean isInHole(final Particle particle) {
+		final double holeStart = length / 2 - holeLength / 2;
+		final double holeEnd = length / 2 + holeLength / 2;
+		final double x = particle.getX();
+		return x >= holeStart && x <= holeEnd;
+	}
+
+	public Pair computeTarget(final Particle particle) {
+		final double holeStart = length / 2 - holeLength / 2;
+		final double x = particle.getX();
+		final double m = holeLength / length;
+		final double b = holeStart;
+
+		return new Pair(m * x + b, 1.0);
 	}
 }

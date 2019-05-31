@@ -13,8 +13,8 @@ public class CellIndexMethod {
 
     public CellIndexMethod(Area area, Double maxRadius) {
         this.cellLength = maxRadius * 2;
-        this.mX = findMaximumMX(area, maxRadius);
-        this.mY = findMaximumMY(area, maxRadius);
+        this.mX = findMaximumMX(area);
+        this.mY = findMaximumMY(area);
     }
 
     private void populateGrid(final Area area) {
@@ -206,13 +206,13 @@ public class CellIndexMethod {
         return neighbours;
     }
 
-    private int findMaximumMX(final Area area, final Double maxRadius) {
-         int m = (int) Math.floor(area.getLength() / (maxRadius * 2));
+    private int findMaximumMX(final Area area) {
+         int m = (int) Math.floor(area.getLength() / cellLength);
         return m == 0 ? 1 : m;
     }
 
-    private int findMaximumMY(final Area area, final Double maxRadius) {
-        int m = (int) Math.floor(area.getHeight() / (maxRadius * 2));
+    private int findMaximumMY(final Area area) {
+        int m = (int) Math.floor(area.getHeight() / cellLength);
         return m == 0 ? 1 : m;
     }
 

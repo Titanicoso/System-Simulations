@@ -23,6 +23,14 @@ public class Pair {
         return y;
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
     public Pair sum(Pair other) {
         x += other.x;
         y += other.y;

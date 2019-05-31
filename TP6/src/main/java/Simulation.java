@@ -6,11 +6,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import forces.GravitationalForce;
-import forces.NonElasticCollision;
-import integrators.VelocityVerlet;
-import interfaces.Force;
 import model.Area;
+import model.CellIndexMethod;
 import model.Pair;
 import model.Particle;
 
@@ -21,58 +18,51 @@ public class Simulation {
 	static boolean appendFlow = false;
 
 	public static void simulate(Options options) {
-		VelocityVerlet vv = new VelocityVerlet();
-		double dt = 1e-5;
-
+		double dt = 1e-4;
 		final Area area = generateParticles(options);
 		System.out.println("generated");
-
-		Set<Force> forces = new HashSet<>();
-		forces.add(new NonElasticCollision(area, options.getMaxRadius()));
-		forces.add(new GravitationalForce());
-
-		List<Particle> previous = area.getParticles();
-		for (Force force: forces) {
-			force.calculate(previous, area);
-		}
+		CellIndexMethod cim = new CellIndexMethod(area, options.getMaxRadius());
 
 		double t = 0;
 		int times = 0;
-		logParticles(previous, area);
-		logData(calculateKineticEnergy(previous), t);
 
-		List<Integer> upperParticles = new ArrayList<>();
 		Map<Integer, Double> outOfHoleParticles = new HashMap<>();
 
-		while(t < 10) {
+		while(!area.getParticles().isEmpty()) {
 			t += dt;
 			times++;
-			List<Particle> predicted = new ArrayList<>();
-			List<Integer> outParticles = new ArrayList<>();
-			for (Particle p: previous) {
-				Particle predictedParticle = vv.evolve(p, dt, previous, forces, area);
-				checkIfParticleNeedsRegen(upperParticles, outParticles, predictedParticle, area);
-				predicted.add(predictedParticle);
-				checkIfParticleIsOut(predictedParticle, area, outOfHoleParticles, t);
+
+			Map<Integer, List<Particle>> neighbours = cim.findNeighbours(area);
+			for (Particle particle : area.getParticles()) {
+				Pair target;
+				if(area.isInHole(particle)) {
+					target = new Pair(particle.getX(), 0);
+				} else {
+					target = area.computeTarget(particle);
+				}
+
+				if (neighbours.containsKey(particle.getId())) {
+					particle.contractRadius();
+					particle.escapeVelocity(neighbours.get(particle.getId()), options.getVelocity());
+					particle.move(dt);
+					particle.updateVelocity(target, options.getMaxRadius(), options.getVelocity());
+				} else {
+					particle.move(dt);
+					particle.updateVelocity(target, options.getMaxRadius(), options.getVelocity());
+					particle.updateRadius(dt, options.getMaxRadius());
+				}
+				if(particle.getY() < 1.0)
+					outOfHoleParticles.put(particle.getId(), t);
 			}
-			regenerateParticles(upperParticles, outParticles, predicted, area);
-			if(outParticles.size() > 0) {
-				logFlow(outOfHoleParticles, outParticles);
-				outParticles.forEach(outOfHoleParticles::remove);
-			}
-			previous = predicted;
-			area.setParticles(predicted);
-			for (Force force: forces) {
-				force.calculate(previous, area);
-			}
-			if(times == Math.round(0.01/dt)) {
+
+			outOfHoleParticles.forEach((id, exit) -> area.getParticles().removeIf(particle -> particle.getId() == id));
+
+			if (times == Math.round(0.1 / dt)) {
 				times = 0;
 				System.out.println(t);
-				logParticles(previous, area);
-				logData(calculateKineticEnergy(previous), t);
+				logParticles(area.getParticles(), area);
 			}
 		}
-		logFlow(outOfHoleParticles, new ArrayList<>(outOfHoleParticles.keySet()));
 	}
 
 	private static void checkIfParticleNeedsRegen(List<Integer> upperParticles, List<Integer> outParticles, Particle predictedParticle, Area area) {
@@ -92,71 +82,6 @@ public class Simulation {
 		if(predictedParticle.getY() < area.getExtraSpace() && !outOfHole.containsKey(predictedParticle.getId()))
 			outOfHole.put(predictedParticle.getId(), time);
 	}
-
-	private static void regenerateParticles(List<Integer> upperParticles, List<Integer> outParticles, List<Particle> predicted, Area area) {
-		int i = 0;
-		while (i < outParticles.size()) {
-			int id1 = outParticles.get(i);
-			Particle p1 = predicted.get(id1);
-			p1.setVelocity(new Pair(0, 0));
-			boolean overlapped = false;
-			double x = rand(p1.getRadius(), area.getLength() - p1.getRadius());
-			double y = rand(area.getHeight() - 3.0 / 10 + p1.getRadius(), area.getHeight() - p1.getRadius());
-			p1.setPosition(new Pair(x, y));
-			for (int j = 0; j < upperParticles.size(); j++) {
-				int id2 = upperParticles.get(j);
-				Particle p2 = predicted.get(id2);
-				if (p1.isOverlapped(p2)) {
-					overlapped = true;
-					break;
-				}
-			}
-			if (!overlapped) {
-				upperParticles.add(p1.getId());
-				i++;
-			}
-		}
-	}
-
-//	public static void simulate1(Options options) {
-//		VelocityVerlet vv = new VelocityVerlet();
-//		double dt = 1e-5;
-//
-//		Particle p1 = new Particle(0, 1, 2, 0, 0, 0.01, 0.1);
-//		Particle p2 = new Particle(1, 6, 0, -1, 0, 0.01, 0.1);
-//		List<Particle> previous = new ArrayList<> ();
-//		previous.add(p1);
-//		//previous.add(p2);
-//
-//		Set<Force> forces = new HashSet<>();
-//		Area area = new Area(10,10,0.0,previous);
-//		forces.add(new NonElasticCollision(area, 0.1));
-//		forces.add(new GravitationalForce());
-//
-//		for (Force force: forces) {
-//			force.calculate(previous, area);
-//		}
-//		logParticles(previous, area);
-//		int times = 0;
-//
-//		while(true) {
-//			List<Particle> predicted = new ArrayList<> ();
-//			for (Particle p: previous) {
-//				predicted.add(vv.evolve(p, dt, previous, forces, area));
-//			}
-//			previous = predicted;
-//			for (Force force: forces) {
-//				force.calculate(previous, area);
-//			}
-//
-//			if(times == 10000) {
-//				logParticles(previous, area);
-//				times = 0;
-//				System.out.println(times);
-//			} else
-//				times++;
-//		}
-//	}
 
 	private static void logData(double totalEnergy, double time) {
 		File file = new File("data.data");
@@ -202,21 +127,13 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println("Lattice=\"1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0\"");
+		ps.println("Lattice=\"20.0 0.0 0.0 0.0 21.0 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
-			ps.println(p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy()
-					+ " " + p.getRadius() + " " + p.getPressure());
+			ps.println(p.getId() + " " + p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy()
+					+ " " + p.getInteractionRadius());
 		}
 
 		ps.close();
-	}
-
-	private static double calculateKineticEnergy(final List<Particle> particles) {
-
-		return particles.stream()
-				.mapToDouble(particle -> 0.5 * (particle.getMass()) * (Math.pow(particle.getVx(), 2)
-						+ Math.pow(particle.getVy(), 2)))
-				.sum();
 	}
 
 	public static Area generateParticles(Options options) {
@@ -224,29 +141,21 @@ public class Simulation {
 		int i = 0;
 		List<Particle> particles = new ArrayList<>();
 		boolean overlapped;
-		int overlappedTimes = 0;
 
-		while(overlappedTimes < 10000 && particles.size() < options.getN()) {
-			double ang = rand(0, 2 * Math.PI);
-			double mod = options.getVelocity();
-			double vx = mod * Math.cos(ang);
-			double vy = mod * Math.sin(ang);
-			double radius = rand(options.getMinRadius(), options.getMaxRadius());
-			double x = rand(radius, options.getLength() - radius);
-			double y = rand(radius + 1.0/10, options.getHeight() - radius);
+		while(particles.size() < options.getN()) {
+			double x = rand(options.getMaxRadius(), options.getLength() - options.getMaxRadius());
+			double y = rand(options.getMaxRadius() + 1.0, options.getHeight() - options.getMaxRadius());
 
-			Particle particle = new Particle(i, x, y, vx, vy, options.getMass(), radius);
+			Particle particle = new Particle(i, x, y, 0.0, 0.0, options.getMinRadius(), options.getMaxRadius());
 			overlapped = false;
 			for (Particle p : particles) {
 				if (particle.isOverlapped(p)) {
 					overlapped = true;
-					overlappedTimes++;
 					break;
 				}
 			}
 			if (!overlapped) {
 				particles.add(particle);
-				overlappedTimes = 0;
 				i++;
 			}
 		}

@@ -5,33 +5,30 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name = "-N", usage = "Initial particles.")
-    private Integer n = 400;
+    private Integer n = 200;
 	
 	@Option(name = "-L", usage = "Box length.")
-    private Double length = 0.3;
+    private Double length = 20.0;
 
-	private Double extraSpace = 1.0/10;
+	private Double extraSpace = 1.0;
 
 	@Option(name = "-H", usage = "Box height.")
-	private Double height = 1.0 + extraSpace;
+	private Double height = 20.0 + extraSpace;
 
 	@Option(name = "-V", usage = "Velocity module.")
-	private Double velocity = 0.0;
+	private Double velocity = 1.55;
 
 	@Option(name = "-HO", usage = "Hole size.")
-	private Double hole = 0.0;
-	
-	@Option(name = "-M", usage = "Particle mass.")
-	private Double mass = 0.01;
+	private Double hole = 1.2;
 	
 	@Option(name = "-DT", usage = "Integration Step.")
     private Double dt = 1.0;
 
 	@Option(name = "-MiR", usage = "Min radius.")
-	private Double minRadius = 0.01;
+	private Double minRadius = 0.15;
 
 	@Option(name = "-MaR", usage = "Max radius.")
-	private Double maxRadius = 0.015;
+	private Double maxRadius = 0.32;
 	
 	public Options(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
@@ -54,10 +51,6 @@ public class Options {
 
 	public Double getHeight() {
 		return height;
-	}
-
-	public Double getMass() {
-		return mass;
 	}
 
 	public Double getDt() {

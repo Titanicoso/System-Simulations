@@ -1,25 +1,29 @@
 package model;
 
+import java.util.List;
+
 public class Particle {
 
 	private int id;
 	private Pair position;
 	private Pair velocity;
-	private double mass;
 	private double radius;
-	private double pressure;
+	private double interactionRadius;
+
+	private final static double TAO = 0.5;
+	private final static double BETA = 0.9;
 	
-	public Particle(final int id, final double x, final double y, final double vx, final double vy, final double mass,
-					final double radius) {
+	public Particle(final int id, final double x, final double y, final double vx, final double vy,
+					final double radius, final double interactionRadius) {
 		this.id = id;
 		this.position = new Pair(x, y);
 		this.velocity = new Pair(vx, vy);
-		this.mass = mass;
 		this.radius = radius;
+		this.interactionRadius = interactionRadius;
 	}
 	
 	public boolean isOverlapped(final Particle particle) {
-		return radius + particle.getRadius() - distance(particle) >= 0;
+		return interactionRadius + particle.getInteractionRadius() - distance(particle) >= 0;
 	}
 
 	public double getVelocityModule() {
@@ -33,15 +37,41 @@ public class Particle {
 		);
 	}
 
-	public double relativeVelocityModule(final Particle particle) {
-		return Math.hypot(
-				(particle.getVx() - this.getVx()),
-				(particle.getVy() - this.getVy())
-		);
+	public void move(final double dt) {
+		position.sum(getVx() * dt, getVy() * dt);
 	}
 
-	public Pair getRelativeVelocity(final Particle particle) {
-		return new Pair(particle.getVx() - this.getVx(), particle.getVy() - this.getVy());
+	public void updateRadius(final double dt, final double maxRadius) {
+		if (interactionRadius < maxRadius) {
+			interactionRadius += maxRadius / (TAO / dt);
+		}
+	}
+
+	public void updateVelocity(final Pair target, final double maxRadius, final double maxVelocity) {
+		final double dx = target.getX() - getX();
+		final double dy = target.getY() - getY();
+		final double distance = target.distance(position);
+		final double mod = maxVelocity * Math.pow((interactionRadius - radius) / (maxRadius - radius), BETA);
+		velocity.setX(mod * dx / distance);
+		velocity.setY(mod * dy / distance);
+	}
+
+	public void contractRadius() {
+		interactionRadius = radius;
+	}
+
+	public void escapeVelocity(final List<Particle> particles, final double maxVelocity) {
+		final double dx = particles.parallelStream()
+				.mapToDouble(neighbour -> neighbour.getX() - getX())
+				.sum();
+		final double dy = particles.parallelStream()
+				.mapToDouble(neighbour -> neighbour.getY() - getY())
+				.sum();
+		final double distance = particles.parallelStream()
+				.mapToDouble(neighbour -> neighbour.distance(this))
+				.sum();
+		velocity.setX(maxVelocity * -dx / distance);
+		velocity.setY(maxVelocity * -dy / distance);
 	}
 
 	public int getId() {
@@ -84,14 +114,6 @@ public class Particle {
 		return velocity.getY();
 	}
 
-	public double getMass() {
-		return mass;
-	}
-
-	public void setMass(double mass) {
-		this.mass = mass;
-	}
-
 	public double getRadius() {
 		return radius;
 	}
@@ -100,12 +122,12 @@ public class Particle {
 		this.radius = radius;
 	}
 
-	public double getPressure() {
-		return pressure;
+	public double getInteractionRadius() {
+		return interactionRadius;
 	}
 
-	public void setPressure(double pressure) {
-		this.pressure = pressure;
+	public void setInteractionRadius(double interactionRadius) {
+		this.interactionRadius = interactionRadius;
 	}
 
 	@Override
