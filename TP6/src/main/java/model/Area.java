@@ -84,15 +84,16 @@ public class Area {
 		final double holeStart = length / 2 - holeLength / 2;
 		final double holeEnd = length / 2 + holeLength / 2;
 		final double x = particle.getX();
-		return x >= holeStart && x <= holeEnd;
+		return x >= holeStart + particle.getInteractionRadius()
+				&& x <= holeEnd - particle.getInteractionRadius();
 	}
 
 	public Pair computeTarget(final Particle particle) {
 		final double holeStart = length / 2 - holeLength / 2;
 		final double x = particle.getX();
-		final double m = holeLength / length;
-		final double b = holeStart;
+		final double m = (holeLength - 2 * particle.getInteractionRadius()) / length;
+		final double b = holeStart + particle.getInteractionRadius();
 
-		return new Pair(m * x + b, 1.0);
+		return new Pair(m * x + b, 1.0 + particle.getInteractionRadius());
 	}
 }
