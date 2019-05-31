@@ -5,19 +5,21 @@ import org.kohsuke.args4j.Option;
 public class Options {
 	
 	@Option(name = "-N", usage = "Initial particles.")
-    private Integer n = 200;
+    private Integer n = 400;
 	
 	@Option(name = "-L", usage = "Box length.")
     private Double length = 0.3;
 
+	private Double extraSpace = 1.0/10;
+
 	@Option(name = "-H", usage = "Box height.")
-	private Double height = 1.0;
+	private Double height = 1.0 + extraSpace;
 
 	@Option(name = "-V", usage = "Velocity module.")
 	private Double velocity = 0.0;
 
 	@Option(name = "-HO", usage = "Hole size.")
-	private Double hole = 0.15;
+	private Double hole = 0.0;
 	
 	@Option(name = "-M", usage = "Particle mass.")
 	private Double mass = 0.01;
@@ -76,5 +78,9 @@ public class Options {
 
 	public Double getMaxRadius() {
 		return maxRadius;
+	}
+
+	public Double getExtraSpace() {
+		return extraSpace;
 	}
 }

@@ -1,17 +1,20 @@
 package model;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 //TODO: Considerar altura y ancho diferentes
 public class CellIndexMethod {
 
     private Map<Integer, List<Particle>> grid;
-    private final int m;
+    private final int mX;
+    private final int mY;
     private final double cellLength;
 
-    public CellIndexMethod(Area area) {
-        this.m = findMaximumM(area);
-        this.cellLength = area.getLength() / m;
+    public CellIndexMethod(Area area, Double maxRadius) {
+        this.cellLength = maxRadius * 2;
+        this.mX = findMaximumMX(area, maxRadius);
+        this.mY = findMaximumMY(area, maxRadius);
     }
 
     private void populateGrid(final Area area) {
@@ -19,13 +22,11 @@ public class CellIndexMethod {
         grid = new HashMap<>();
 
         for (final Particle particle: area.getParticles()) {
-
             if(particle.getY() >= 0) {
-
                 final int cellX = (int) Math.floor(particle.getX() / cellLength);
                 final int cellY = (int) Math.floor(particle.getY() / cellLength);
 
-                final int cell = cellX + cellY * m;
+                final int cell = cellX + cellY * mX;
 
                 if (!grid.containsKey(cell)) {
                     grid.put(cell, new ArrayList<>());
@@ -72,14 +73,14 @@ public class CellIndexMethod {
 
     private int getNeighbour(final int cell, final int up, final int right) {
 
-        int neighbourX = (cell % m) + right;
-        int neighbourY = (cell / m) - up;
+        int neighbourX = (cell % mX) + right;
+        int neighbourY = (cell / mX) - up;
 
-        if((neighbourX < 0 || neighbourX >=  m ||
-                neighbourY < 0 || neighbourY >= m))
+        if((neighbourX < 0 || neighbourX >=  mX ||
+                neighbourY < 0 || neighbourY >= mY))
             return -1;
 
-        return neighbourX + neighbourY * m;
+        return neighbourX + neighbourY * mX;
     }
 
     private void findCellNeighbours(final Map<Integer, List<Particle>> neighbours, final List<Particle> cell1,
@@ -95,6 +96,11 @@ public class CellIndexMethod {
                         if(!neighbours.containsKey(particle1.getId())) {
                             neighbours.put(particle1.getId(), new ArrayList<>());
                         }
+                        if(!neighbours.containsKey(particle2.getId())) {
+                            neighbours.put(particle2.getId(), new ArrayList<>());
+                        }
+
+                        neighbours.get(particle2.getId()).add(particle1);
 
                         neighbours.get(particle1.getId()).add(particle2);
                     }
@@ -115,6 +121,11 @@ public class CellIndexMethod {
                     if(!neighbours.containsKey(particle1.getId())) {
                         neighbours.put(particle1.getId(), new ArrayList<>());
                     }
+                    if(!neighbours.containsKey(particle2.getId())) {
+                        neighbours.put(particle2.getId(), new ArrayList<>());
+                    }
+
+                    neighbours.get(particle2.getId()).add(particle1);
 
                     neighbours.get(particle1.getId()).add(particle2);
                 }
@@ -141,7 +152,7 @@ public class CellIndexMethod {
 
         final int cellX = (int) Math.floor(particle.getX() / cellLength);
         final int cellY = (int) Math.floor(particle.getY() / cellLength);
-        final int cellI = cellX + cellY * m;
+        final int cellI = cellX + cellY * mX;
 
         if(cellI < 0 || cellI > grid.size())
             return Collections.emptyList();
@@ -195,18 +206,18 @@ public class CellIndexMethod {
         return neighbours;
     }
 
-    private int findMaximumM(final Area area) {
-
-        double max = 0;
-
-        for (Particle particle: area.getParticles()) {
-            if(particle.getRadius() > max)
-                max = particle.getRadius();
-        }
-
-
-        int m = (int) Math.floor(area.getLength() / (max * 2));
+    private int findMaximumMX(final Area area, final Double maxRadius) {
+         int m = (int) Math.floor(area.getLength() / (maxRadius * 2));
         return m == 0 ? 1 : m;
+    }
+
+    private int findMaximumMY(final Area area, final Double maxRadius) {
+        int m = (int) Math.floor(area.getHeight() / (maxRadius * 2));
+        return m == 0 ? 1 : m;
+    }
+
+    private static double rand(double min, double max) {
+        return ThreadLocalRandom.current().nextDouble(min, max);
     }
 
 }

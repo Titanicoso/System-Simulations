@@ -7,6 +7,7 @@ public class Particle {
 	private Pair velocity;
 	private double mass;
 	private double radius;
+	private double pressure;
 	
 	public Particle(final int id, final double x, final double y, final double vx, final double vy, final double mass,
 					final double radius) {
@@ -38,7 +39,11 @@ public class Particle {
 				(particle.getVy() - this.getVy())
 		);
 	}
-	
+
+	public Pair getRelativeVelocity(final Particle particle) {
+		return new Pair(particle.getVx() - this.getVx(), particle.getVy() - this.getVy());
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -93,6 +98,14 @@ public class Particle {
 
 	public void setRadius(double radius) {
 		this.radius = radius;
+	}
+
+	public double getPressure() {
+		return pressure;
+	}
+
+	public void setPressure(double pressure) {
+		this.pressure = pressure;
 	}
 
 	@Override

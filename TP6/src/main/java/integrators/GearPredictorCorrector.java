@@ -26,13 +26,13 @@ public class GearPredictorCorrector implements Integrator {
         final Pair r1 = particle.getVelocity();
 
         Pair r2 = new Pair(0,0);
-        forces.stream().foreach(force -> r2.sum(force.getForce(particle).multiplyByScalar(1/mass)));
+        forces.stream().forEach(force -> r2.sum(force.getForce(particle).multiplyByScalar(1/mass)));
         Pair r3 = new Pair(0,0);
-        forces.stream().foreach(force -> r3.sum(force.getD1(particle).multiplyByScalar(1/mass)));
+        forces.stream().forEach(force -> r3.sum(force.getD1(particle).multiplyByScalar(1/mass)));
         Pair r4 = new Pair(0,0);
-        forces.stream().foreach(force -> r4.sum(force.getD2(particle).multiplyByScalar(1/mass)));
+        forces.stream().forEach(force -> r4.sum(force.getD2(particle).multiplyByScalar(1/mass)));
         Pair r5 = new Pair(0,0);
-        forces.stream().foreach(force -> r5.sum(force.getD3(particle).multiplyByScalar(1/mass)));
+        forces.stream().forEach(force -> r5.sum(force.getD3(particle).multiplyByScalar(1/mass)));
 
         final Pair predictedR = new Pair(
                 r.getX() + r1.getX() * dt + r2.getX() * (Math.pow(dt, 2) / 2) +
@@ -60,7 +60,7 @@ public class GearPredictorCorrector implements Integrator {
         Pair acceleration = new Pair(0,0);
         final Particle predicted = new Particle(particle.getId(), predictedR.getX(), predictedR.getY(),
                 predictedR1.getX(), predictedR1.getY(), mass, particle.getRadius());
-        forces.stream().foreach(force -> acceleration.sum(force.recalculateForce(predicted, particles, area));
+        forces.stream().forEach(force -> acceleration.sum(force.recalculateForce(predicted, particles, area)));
 
         final Pair deltaR2 = new Pair(
                 (acceleration.getX() / mass - predictedR2.getX()) * dt * dt / 2,
