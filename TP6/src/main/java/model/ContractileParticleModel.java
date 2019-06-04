@@ -18,12 +18,7 @@ public class ContractileParticleModel {
 
     public Particle evolve(final Particle particle, final List<Particle> neighbours,
                            final double dt) {
-        final Pair target;
-        if(area.isInHole(particle)) {
-            target = new Pair(particle.getX(), 0);
-        } else {
-            target = area.computeTarget(particle);
-        }
+        final Pair target = area.computeTarget(particle, maxRadius);
 
         List<Particle> particleNeighbours = neighbours;
         List<Particle> walls = area.getWallPositions(particle).stream()

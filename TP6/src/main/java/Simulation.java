@@ -15,7 +15,7 @@ public class Simulation {
 	static boolean appendFlow = false;
 
 	public static void simulate(Options options) {
-		double dt = 1e-4;
+		double dt = 0.05;
 		final Area area = generateParticles(options);
 		System.out.println("generated");
 		CellIndexMethod cim = new CellIndexMethod(area, options.getMaxRadius());
@@ -28,6 +28,7 @@ public class Simulation {
 		Map<Integer, Double> outOfHoleParticles = new HashMap<>();
         List<Particle> previous = area.getParticles();
         List<Particle> predicted;
+        logParticles(area.getParticles(), area);
 
 		while(!previous.isEmpty()) {
 			t += dt;
@@ -40,20 +41,23 @@ public class Simulation {
                 Particle predictedParticle = cpm.evolve(particle,
                         neighbours.get(particle.getId()), dt);
 
-                if(predictedParticle.getY() >= 1.0) {
-                    predicted.add(predictedParticle);
-                } else {
-                    outOfHoleParticles.put(predictedParticle.getId(), t);
-                }
+                if(predictedParticle.getY() > 0.0)
+                	predicted.add(predictedParticle);
+
+                if(predictedParticle.getY() < 1.0 && !outOfHoleParticles.containsKey(predictedParticle.getId())) {
+					outOfHoleParticles.put(predictedParticle.getId(), t);
+				}
 			}
 
 			previous = predicted;
 			area.setParticles(predicted);
 
-			if (times == Math.round(0.1 / dt)) {
+			if (times == Math.round(dt / dt)) {
 				times = 0;
-				System.out.println(t);
+				System.out.println(options.getN() - predicted.size() + " " + t);
 				logParticles(previous, area);
+//				logFlow(outOfHoleParticles);
+//				outOfHoleParticles.clear();
 			}
 		}
 	}
@@ -91,7 +95,7 @@ public class Simulation {
 		ps.close();
 	}
 
-	private static void logFlow(Map<Integer, Double> outParticles, List<Integer> regenParticles) {
+	private static void logFlow(Map<Integer, Double> outParticles) {
 		File file = new File("flow.data");
 		FileOutputStream fos = null;
 		try {
@@ -101,9 +105,7 @@ public class Simulation {
 			return;
 		}
 		PrintStream ps = new PrintStream(fos);
-		outParticles.entrySet().stream()
-				.filter(entry -> regenParticles.contains(entry.getKey()))
-				.forEach(entry -> ps.println(entry.getValue()));
+		outParticles.forEach((key, value) -> ps.println(value));
 
 		ps.close();
 	}
