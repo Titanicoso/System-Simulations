@@ -28,6 +28,7 @@ public class Simulation {
 		Map<Integer, Double> outOfHoleParticles = new HashMap<>();
         List<Particle> previous = area.getParticles();
         List<Particle> predicted;
+		List<Integer> outParticles = new ArrayList<>();
         logParticles(area.getParticles(), area);
 
 		while(!previous.isEmpty()) {
@@ -41,8 +42,11 @@ public class Simulation {
                 Particle predictedParticle = cpm.evolve(particle,
                         neighbours.get(particle.getId()), dt);
 
-                if(predictedParticle.getY() > 0.0)
-                	predicted.add(predictedParticle);
+                if(predictedParticle.getY() > 0.0) {
+					predicted.add(predictedParticle);
+				} else {
+					outParticles.add(predictedParticle.getId());
+				}
 
                 if(predictedParticle.getY() < 1.0 && !outOfHoleParticles.containsKey(predictedParticle.getId())) {
 					outOfHoleParticles.put(predictedParticle.getId(), t);
@@ -56,8 +60,8 @@ public class Simulation {
 				times = 0;
 				System.out.println(options.getN() - predicted.size() + " " + t);
 				logParticles(previous, area);
-//				logFlow(outOfHoleParticles);
-//				outOfHoleParticles.clear();
+				logFlow(outOfHoleParticles, outParticles);
+				outParticles.forEach(outOfHoleParticles::remove);
 			}
 		}
 	}
@@ -95,7 +99,7 @@ public class Simulation {
 		ps.close();
 	}
 
-	private static void logFlow(Map<Integer, Double> outParticles) {
+	private static void logFlow(Map<Integer, Double> outParticles, List<Integer> out) {
 		File file = new File("flow.data");
 		FileOutputStream fos = null;
 		try {
@@ -105,7 +109,9 @@ public class Simulation {
 			return;
 		}
 		PrintStream ps = new PrintStream(fos);
-		outParticles.forEach((key, value) -> ps.println(value));
+		outParticles.entrySet().stream()
+				.filter(entry -> out.contains(entry.getKey()))
+				.forEach(entry -> ps.println(entry.getValue()));
 
 		ps.close();
 	}
