@@ -36,11 +36,10 @@ public class ContractileParticleModel {
             predicted.contractRadius();
             predicted.escapeVelocity(particleNeighbours, maxVelocity);
             predicted.move(dt);
-            predicted.updateVelocity(target, maxRadius, maxVelocity);
         } else {
-            predicted.move(dt);
             predicted.updateVelocity(target, maxRadius, maxVelocity);
             predicted.updateRadius(dt, maxRadius);
+            predicted.move(dt);
         }
 
         return predicted;

@@ -15,7 +15,7 @@ public class Simulation {
 	static boolean appendFlow = false;
 
 	public static void simulate(Options options) {
-		double dt = 0.05;
+		double dt = options.getMinRadius() / (2 * options.getVelocity());
 		final Area area = generateParticles(options);
 		System.out.println("generated");
 		CellIndexMethod cim = new CellIndexMethod(area, options.getMaxRadius());
@@ -64,6 +64,7 @@ public class Simulation {
 				outParticles.forEach(outOfHoleParticles::remove);
 			}
 		}
+		System.out.println(options.getN() / (options.getHole() * t));
 	}
 
 	private static void checkIfParticleNeedsRegen(List<Integer> upperParticles, List<Integer> outParticles, Particle predictedParticle, Area area) {

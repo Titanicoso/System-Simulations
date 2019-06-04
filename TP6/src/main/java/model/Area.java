@@ -89,17 +89,22 @@ public class Area {
 	}
 
 	public Pair computeTarget(final Particle particle, double maxRadius) {
-		final double holeStart = length / 2 - holeLength / 2;
-		final double holeEnd = length / 2 + holeLength / 2;
+		final double holeStart = length / 2 - holeLength / 2 + particle.getRadius();
+		final double holeEnd = length / 2 + holeLength / 2 - particle.getRadius();
+		final double effective = holeEnd - holeStart;
 		final double x = particle.getX();
-		final double m = (holeLength - 2 * particle.getRadius()) / length;
-		final double b = holeStart + particle.getRadius();
 
-		if(x >= holeStart + particle.getRadius()
-				&& x <= holeEnd - particle.getRadius()) {
+		double lambda = (x - holeStart) / effective;
+
+		if(particle.getY() < 1.0)
 			return new Pair(x, 0);
+
+		if(lambda <= 0) {
+			return new Pair(holeStart, 1.0);
+		} else if(lambda >= 1) {
+			return new Pair(holeEnd, 1.0);
 		}
 
-		return new Pair(m * x + b, 1.0);
+		return new Pair(x, 0);
 	}
 }
