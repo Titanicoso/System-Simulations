@@ -129,7 +129,7 @@ public class Simulation {
 		PrintStream ps = new PrintStream(fos);
 
 		ps.println(particles.size());
-		ps.println("Lattice=\"20.0 0.0 0.0 0.0 21.0 0.0 0.0 0.0 1.0\"");
+		ps.println("Lattice=\"20.0 0.0 0.0 0.0 25.0 0.0 0.0 0.0 1.0\"");
 		for (Particle p : particles) {
 			ps.println(p.getId() + " " + p.getX() + " " + p.getY() + " " + p.getVx() + " " + p.getVy()
 					+ " " + p.getInteractionRadius());
