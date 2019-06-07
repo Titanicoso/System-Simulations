@@ -48,7 +48,7 @@ public class Simulation {
 					outParticles.add(predictedParticle.getId());
 				}
 
-                if(predictedParticle.getY() < 1.0 && !outOfHoleParticles.containsKey(predictedParticle.getId())) {
+                if(predictedParticle.getY() < area.getExtraSpace() && !outOfHoleParticles.containsKey(predictedParticle.getId())) {
 					outOfHoleParticles.put(predictedParticle.getId(), t);
 				}
 			}
@@ -146,7 +146,7 @@ public class Simulation {
 
 		while(particles.size() < options.getN()) {
 			double x = rand(options.getMaxRadius(), options.getLength() - options.getMaxRadius());
-			double y = rand(options.getMaxRadius() + 1.0, options.getHeight() - options.getMaxRadius());
+			double y = rand(options.getMaxRadius() + options.getExtraSpace(), options.getHeight() - options.getMaxRadius());
 
 			Particle particle = new Particle(i, x, y, 0.0, 0.0, options.getMinRadius(), options.getMaxRadius());
 			overlapped = false;

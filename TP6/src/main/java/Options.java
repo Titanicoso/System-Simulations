@@ -10,7 +10,7 @@ public class Options {
 	@Option(name = "-L", usage = "Box length.")
     private Double length = 20.0;
 
-	private Double extraSpace = 1.0;
+	private Double extraSpace = 5.0;
 
 	@Option(name = "-H", usage = "Box height.")
 	private Double height = 20.0 + extraSpace;
@@ -25,10 +25,10 @@ public class Options {
     private Double dt = 1.0;
 
 	@Option(name = "-MiR", usage = "Min radius.")
-	private Double minRadius = 0.15;
+	private Double minRadius = 0.10;
 
 	@Option(name = "-MaR", usage = "Max radius.")
-	private Double maxRadius = 0.32;
+	private Double maxRadius = 0.37;
 	
 	public Options(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
