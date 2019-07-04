@@ -2,25 +2,33 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import java.io.File;
+
 public class Options {
 	
 	@Option(name = "-N", usage = "Initial cars")
-    private Integer n = 4;
+    private Integer n = 50;
 
 	@Option(name = "-S", usage = "Number of states/iterations")
-    private Integer states = 50;
+    private Integer states = 500;
 
 	@Option(name = "-L", usage = "Dimension length")
     private Integer length = 100;
 
     @Option(name = "-H", usage = "Dimension height")
-    private Integer height = 1;
+    private Integer height = 3;
 
-    @Option(name = "-P", usage = "Probability")
-    private Double probability = 0.5;
+    @Option(name = "-P", usage = "Slow down probability")
+    private Double slowDownProbability = 0.15;
+
+    @Option(name = "-LP", usage = "Lane change probability")
+    private Double laneChangeProbability = 0.85;
 
     @Option(name = "-V", usage = "Max Velocity")
     private Integer maxVelocity = 5;
+
+    @Option(name = "-I", usage = "Input file.")
+    private File input = new File("input.txt");
 	
 	public Options(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
@@ -53,11 +61,19 @@ public class Options {
         return height;
     }
 
-    public Double getProbability() {
-        return probability;
+    public Double getSlowDownProbability() {
+        return slowDownProbability;
+    }
+
+    public Double getLaneChangeProbability() {
+        return laneChangeProbability;
     }
 
     public Integer getMaxVelocity() {
         return maxVelocity;
+    }
+
+    public File getInput() {
+        return input;
     }
 }

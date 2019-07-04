@@ -2,33 +2,51 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class State {
 
     private List<Cell> cars;
     private Cell[][] cells;
+    private int obstacleCount;
     private int length;
     private int height;
     private int maxVelocity;
-    private double probability;
+    private double slowDownProbability;
+    private double laneChangeProbability;
 
-    public State(int length, int height, int maxVelocity, double probability) {
+    public State(int length, int height, int maxVelocity, double slowDownProbability, double laneChangeProbability) {
         this.length = length;
         this.height = height;
         cells = new Cell[length][height];
         this.maxVelocity = maxVelocity;
-        this.probability = probability;
+        this.slowDownProbability = slowDownProbability;
+        this.laneChangeProbability = laneChangeProbability;
         cars = new ArrayList<>();
     }
 
-    private Cell getForwardNeighbour(Cell cell, int down) {
+    private Cell getForwardNeighbour(Cell cell, int up) {
 
         int x = cell.getX();
-        int y = cell.getY() + down;
+        int y = cell.getY() + up;
 
-        for (int i = x; i < x + maxVelocity && i < length; i++) {
-            if(cells[i][y] != null && (down != 0 || i != x)) {
+        for (int i = x; i <= x + maxVelocity && i < length; i++) {
+            if(cells[i][y] != null && (up != 0 || i != x)) {
+                return new Cell(cells[i][y]);
+            }
+        }
+
+        return null;
+    }
+
+    private Cell getBackwardNeighbour(Cell cell, int up) {
+
+        int x = cell.getX();
+        int y = cell.getY() + up;
+
+        for (int i = x; i > 0 ; i--) {
+            if(cells[i][y] != null && (up != 0 || i != x)) {
                 return new Cell(cells[i][y]);
             }
         }
@@ -40,8 +58,8 @@ public class State {
         List<Cell> modified = calculateModified();
 
         cars.stream().forEach(car -> {
-            int x = car.getX();
-            int y = car.getY();
+            final int x = car.getX();
+            final int y = car.getY();
             cells[x][y] = null;
         });
 
@@ -67,12 +85,13 @@ public class State {
 
     private List<Cell> calculateModified() {
 
-        List<Cell> modified = new ArrayList<>();
+        final List<Cell> modified = new ArrayList<>();
 
         cars.stream().forEach(car -> {
-            Cell neighbour = getForwardNeighbour(car, 0);
+            final Cell neighbour = getForwardNeighbour(car, 0);
+            laneChange(car);
             Cell next = new Cell(car);
-            next.updateVelocity(neighbour, maxVelocity, probability);
+            next.updateVelocity(neighbour, maxVelocity, slowDownProbability);
             next.updatePosition();
             modified.add(next);
         });
@@ -80,12 +99,49 @@ public class State {
         return modified;
     }
 
-    private void laneChange() {
+    private void laneChange(final Cell cell) {
 
+        final int initialX = cell.getX();
+        final int initialY = cell.getY();
+
+        final Cell sameLaneNeighbour = getForwardNeighbour(cell, 0);
+        final int currentGap = cell.getDistance(sameLaneNeighbour);
+        final boolean incentive = currentGap != -1 && cell.getHopeVelocity(maxVelocity) > currentGap;
+
+        if(!incentive)
+            return ;
+
+        for (int i = -1; i <= 1; i += 2) {
+            if(initialY + i > 0 && initialY + i < height) {
+                final Cell forwardOtherNeighbour = getForwardNeighbour(cell, i);
+                final Cell backwardOtherNeighbour = getBackwardNeighbour(cell, i);
+                final boolean willGainSpeed = forwardOtherNeighbour == null ||
+                        cell.getDistance(forwardOtherNeighbour) > currentGap;
+                final boolean willNotStopOthers = backwardOtherNeighbour == null ||
+                        cell.getDistance(backwardOtherNeighbour) > backwardOtherNeighbour.getVelocity();
+                final boolean change = ThreadLocalRandom.current().nextDouble() <= laneChangeProbability
+                        && willGainSpeed && willNotStopOthers;
+
+                if(change) {
+                    cell.setY(initialY + i);
+                    cells[initialX][initialY] = null;
+                    cells[initialX][cell.getY()] = cell;
+                    break;
+                }
+            }
+        }
     }
 
     public int getCarCount() {
         return cars.size();
+    }
+
+    public int getObstacleCount() {
+        return obstacleCount;
+    }
+
+    public void setObstacleCount(int obstacleCount) {
+        this.obstacleCount = obstacleCount;
     }
 
     public List<Cell> getCars() {

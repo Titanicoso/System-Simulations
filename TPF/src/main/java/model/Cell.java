@@ -1,30 +1,31 @@
 package model;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 public class Cell {
 
+    private int id;
     private int x;
     private int y;
     private int velocity;
 
 
-    public Cell(int x, int y) {
+    public Cell(int id, int x, int y) {
+        this.id = id;
         this.x = x;
         this.y = y;
     }
 
-    public Cell(int x, int y, int velocity) {
+    public Cell(int id, int x, int y, int velocity) {
+        this.id = id;
         this.x = x;
         this.y = y;
         this.velocity = velocity;
     }
 
     public Cell(Cell other) {
+        this.id = other.getId();
         this.x = other.getX();
         this.y = other.getY();
         this.velocity = other.velocity;
@@ -54,8 +55,16 @@ public class Cell {
         this.velocity = velocity;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void updateVelocity(Cell neighbour, int maxVelocity, double probability) {
-        int newVelocity = Math.min(maxVelocity, velocity + 1);
+        int newVelocity = getHopeVelocity(maxVelocity);
         if(neighbour != null) {
             newVelocity = Math.min(newVelocity, getDistance(neighbour));
         }
@@ -65,12 +74,16 @@ public class Cell {
         this.velocity = newVelocity;
     }
 
+    public int getHopeVelocity(int maxVelocity) {
+        return Math.min(maxVelocity, velocity + 1);
+    }
+
     public void updatePosition() {
         this.x += velocity;
     }
 
     public int getDistance(Cell other) {
-        return Math.abs(other.getX() - x - 1);
+        return other == null ? -1 : Math.abs(other.getX() - x) - 1;
     }
 
     public boolean isObstacle() {
