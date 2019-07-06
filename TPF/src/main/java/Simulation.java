@@ -135,7 +135,7 @@ public class Simulation {
 
 		int i = 0;
 		while(autitos.size() < options.getN()) {
-			int x = rand(0, 20);
+			int x = rand(0, 30);
 			int y = rand(0, options.getHeight());
 			int velocity = rand(1, options.getMaxVelocity());
 
