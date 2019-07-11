@@ -112,7 +112,7 @@ public class State {
             return ;
 
         for (int i = -1; i <= 1; i += 2) {
-            if(initialY + i > 0 && initialY + i < height) {
+            if(initialY + i >= 0 && initialY + i < height) {
                 final Cell forwardOtherNeighbour = getForwardNeighbour(cell, i);
                 final Cell backwardOtherNeighbour = getBackwardNeighbour(cell, i);
                 final boolean willGainSpeed = forwardOtherNeighbour == null ||
